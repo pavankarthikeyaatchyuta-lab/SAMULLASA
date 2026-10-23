@@ -1,33 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { parseNaturalLanguageChange } from '@/lib/scenario-engine';
 import type { ChangeProposal } from '@/types/events';
 
-interface InterpretRequestBody {
-  prompt?: string;
-  currentGuestCount?: number;
-  budgetCeilingPaise?: number;
-}
+// Strict runtime schema validation for incoming client payload
+const InterpretRequestSchema = z.object({
+  prompt: z.string().min(1, 'Prompt cannot be empty').max(2000, 'Prompt exceeds 2000 characters'),
+  currentGuestCount: z.number().int().nonnegative().optional(),
+  budgetCeilingPaise: z.number().int().nonnegative().optional(),
+});
+
+// Runtime validation schema for LLM outputs to protect deterministic domain logic
+const ChangeItemSchema = z.object({
+  type: z.enum([
+    'guest_count',
+    'budget',
+    'add_item',
+    'remove_item',
+    'modify_item',
+    'preference',
+    'date',
+    'venue',
+  ]),
+  field: z.string().max(100),
+  currentValue: z.union([z.string(), z.number()]).optional(),
+  proposedValue: z.union([z.string(), z.number()]),
+  reason: z.string().max(500),
+});
+
+const ChangeProposalSchema = z.object({
+  description: z.string().max(1000),
+  changes: z.array(ChangeItemSchema),
+  preserveFields: z.array(z.string().max(100)),
+  ambiguities: z.array(z.string().max(500)),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as InterpretRequestBody;
-    const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
-
-    if (!prompt) {
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch {
       return NextResponse.json(
-        { error: 'Prompt is required and must be a non-empty string.' },
+        { error: 'Invalid JSON payload in request body.' },
         { status: 400 },
       );
     }
 
-    if (prompt.length > 2000) {
+    const parseResult = InterpretRequestSchema.safeParse(rawBody);
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: 'Prompt exceeds the 2000 character maximum limit.' },
+        {
+          error: 'Validation failed for request parameters.',
+          details: parseResult.error.issues.map((i) => i.message),
+        },
         { status: 400 },
       );
     }
 
-    // Attempt external LLM if GEMINI_API_KEY is configured
+    const { prompt } = parseResult.data;
+
+    // External LLM attempt when API key is provided
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (apiKey) {
       try {
@@ -70,10 +103,11 @@ Return JSON adhering to:
           const data = await response.json();
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            const parsed = JSON.parse(rawText) as ChangeProposal;
-            if (parsed && Array.isArray(parsed.changes)) {
+            const parsedJson = JSON.parse(rawText);
+            const validatedProposal = ChangeProposalSchema.safeParse(parsedJson);
+            if (validatedProposal.success) {
               return NextResponse.json({
-                proposal: parsed,
+                proposal: validatedProposal.data as ChangeProposal,
                 source: 'gemini-ai',
               });
             }
@@ -90,10 +124,10 @@ Return JSON adhering to:
       proposal,
       source: 'deterministic-engine',
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+  } catch {
+    // Never disclose internal error details or stack traces to clients
     return NextResponse.json(
-      { error: 'Internal server error while parsing request', details: message },
+      { error: 'An unexpected internal error occurred while parsing the change proposal.' },
       { status: 500 },
     );
   }

@@ -1,25 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { AIRecommendation, EventType, EventPreferences } from '@/types/events';
+import { z } from 'zod';
+import type { AIRecommendation } from '@/types/events';
 
-interface RecommendRequestBody {
-  eventType?: EventType;
-  guestCount?: number;
-  budgetCeilingPaise?: number;
-  preferences?: EventPreferences;
-  accessibilityRequirements?: string[];
-}
+const RecommendRequestSchema = z.object({
+  eventType: z.enum(['wedding', 'birthday', 'community']).optional().default('wedding'),
+  guestCount: z.number().int().nonnegative().optional().default(100),
+  budgetCeilingPaise: z.number().int().nonnegative().optional().default(50000000),
+  preferences: z
+    .object({
+      culturalStyle: z.string().max(100).optional(),
+      dietaryRequirements: z.array(z.string().max(100)).optional(),
+      theme: z.string().max(100).optional(),
+      priorityAreas: z.array(z.string().max(100)).optional(),
+    })
+    .optional(),
+  accessibilityRequirements: z.array(z.string().max(150)).optional().default([]),
+});
+
+const RecommendationItemSchema = z.object({
+  id: z.string().max(100),
+  category: z.string().max(100),
+  title: z.string().max(200),
+  description: z.string().max(1000),
+  estimatedCostPaise: z.number().nonnegative().optional(),
+  rationale: z.string().max(1000),
+  tags: z.array(z.string().max(50)),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as RecommendRequestBody;
-    const eventType = body.eventType || 'wedding';
-    const guestCount = Math.max(0, Number(body.guestCount) || 100);
-    const budgetPaise = Math.max(0, Number(body.budgetCeilingPaise) || 50000000);
-    const culturalStyle = body.preferences?.culturalStyle || 'Traditional Indian';
-    const dietary = body.preferences?.dietaryRequirements || ['Vegetarian'];
-    const accessibility = body.accessibilityRequirements || [];
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid JSON payload in request body.' },
+        { status: 400 },
+      );
+    }
 
-    // Attempt external LLM if GEMINI_API_KEY is configured
+    const parseResult = RecommendRequestSchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed for recommendation parameters.',
+          details: parseResult.error.issues.map((i) => i.message),
+        },
+        { status: 400 },
+      );
+    }
+
+    const {
+      eventType,
+      guestCount,
+      budgetCeilingPaise: budgetPaise,
+      preferences,
+      accessibilityRequirements: accessibility,
+    } = parseResult.data;
+
+    const culturalStyle = preferences?.culturalStyle || 'Traditional Indian';
+    const dietary = preferences?.dietaryRequirements || ['Vegetarian'];
+
+    // External LLM attempt if configured
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (apiKey) {
       try {
@@ -65,10 +107,11 @@ Return a JSON array of recommendation objects adhering to:
           const data = await response.json();
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            const parsed = JSON.parse(rawText) as AIRecommendation[];
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            const parsed = JSON.parse(rawText);
+            const validated = z.array(RecommendationItemSchema).safeParse(parsed);
+            if (validated.success && validated.data.length > 0) {
               return NextResponse.json({
-                recommendations: parsed.map((item, idx) => ({
+                recommendations: validated.data.map((item, idx) => ({
                   ...item,
                   id: item.id || `rec-llm-${idx + 1}`,
                   isGenerated: true,
@@ -183,10 +226,9 @@ Return a JSON array of recommendation objects adhering to:
       recommendations,
       source: 'deterministic-personalization-engine',
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+  } catch {
     return NextResponse.json(
-      { error: 'Internal server error while generating recommendations', details: message },
+      { error: 'An unexpected internal error occurred while generating recommendations.' },
       { status: 500 },
     );
   }

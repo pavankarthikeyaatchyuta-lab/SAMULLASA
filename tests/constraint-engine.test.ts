@@ -7,6 +7,7 @@ import {
   detectCycles,
   getAffectedTasks,
   propagateChanges,
+  generateAlternatives,
 } from '@/lib/constraint-engine';
 import type { EventDetails, Scenario, Task } from '@/types/events';
 
@@ -225,4 +226,109 @@ describe('Constraint Engine & Dependency Graph', () => {
     ]);
     expect(result.affectedBudgetItemIds).toContain('bi-1'); // catering is per_person
   });
+
+  it('adversarially enforces constraint rules in generateAlternatives', () => {
+    // Scenario with 280 guests and 59,60,000 paise (59.6k) against 50,00,000 paise ceiling (overshoot = 96k)
+    // Priority areas: catering, photography
+    const strainedScenario: Scenario = {
+      ...mockScenario,
+      guestCount: 280,
+      budgetItems: [
+        {
+          id: 'item-cat',
+          category: 'catering',
+          name: 'Catering Feast',
+          amountPaise: 33600000, // ₹3,36,000 (280 * ₹1,200)
+          costType: 'per_person',
+          unitCount: 280,
+          unitRatePaise: 120000,
+          status: 'quoted',
+          depositPaise: 0,
+          isGenerated: false,
+          createdAt: '2025-01-01',
+          updatedAt: '2025-01-01',
+        },
+        {
+          id: 'item-ven',
+          category: 'venue',
+          name: 'Venue Hall',
+          amountPaise: 8000000, // ₹80,000
+          costType: 'fixed',
+          status: 'committed',
+          depositPaise: 0,
+          isGenerated: false,
+          createdAt: '2025-01-01',
+          updatedAt: '2025-01-01',
+        },
+        {
+          id: 'item-photo',
+          category: 'photography',
+          name: 'Photography Coverage',
+          amountPaise: 4500000, // ₹45,000 (priority!)
+          costType: 'fixed',
+          status: 'quoted',
+          depositPaise: 0,
+          isGenerated: false,
+          createdAt: '2025-01-01',
+          updatedAt: '2025-01-01',
+        },
+        {
+          id: 'item-ent',
+          category: 'entertainment',
+          name: 'Live Music DJ',
+          amountPaise: 3000000, // ₹30,000 (discretionary)
+          costType: 'fixed',
+          status: 'estimated',
+          depositPaise: 0,
+          isGenerated: false,
+          createdAt: '2025-01-01',
+          updatedAt: '2025-01-01',
+        },
+        {
+          id: 'item-inv',
+          category: 'invitations',
+          name: 'Invites',
+          amountPaise: 1500000, // ₹15,000 (discretionary)
+          costType: 'fixed',
+          status: 'estimated',
+          depositPaise: 0,
+          isGenerated: false,
+          createdAt: '2025-01-01',
+          updatedAt: '2025-01-01',
+        },
+      ],
+    };
+
+    const eventWithPriority = { ...mockEvent, preferences: { ...mockEvent.preferences, priorityAreas: ['catering', 'photography'] } };
+    const alts = generateAlternatives(strainedScenario, eventWithPriority);
+    expect(alts.length).toBe(3);
+
+    const [alt1, alt2, alt3] = alts;
+
+    // RULE 1 & 2: Option 1 strictly protects priority categories (catering and photography)
+    const alt1Photo = alt1.budgetItems.find((i) => i.category === 'photography')!;
+    expect(alt1Photo.amountPaise).toBe(4500000); // Unchanged! Never reduced!
+    const alt1Cat = alt1.budgetItems.find((i) => i.category === 'catering')!;
+    expect(alt1Cat.amountPaise).toBe(33600000); // Unchanged! Never reduced!
+
+    // Discretionary entertainment (30k) and invites (15k) cut by 50% max = 15k + 7.5k = 22.5k
+    // Deficit was ₹96k, so ₹73.5k deficit remains.
+    // RULE: Cannot label as feasible when budget constraint is violated!
+    expect(alt1.isFeasible).toBe(false);
+    expect(alt1.name).toContain('Infeasible');
+
+    // RULE 3 & 4: Option 2 explicitly declares budget ceiling relaxation and requires approval
+    expect(alt2.name).toContain('[Relaxes Budget Ceiling]');
+    expect(alt2.name).toContain('Requires Host Approval');
+    expect(alt2.budgetCeilingPaise).toBeGreaterThan(mockScenario.budgetCeilingPaise);
+    expect(alt2.changes.some((c) => c.field === 'budgetCeilingPaise')).toBe(true);
+
+    // RULE 5: Option 3 explicitly declares guest count relaxation and requires approval
+    expect(alt3.name).toContain('[Relaxes Guest Target]');
+    expect(alt3.name).toContain('Requires Host Approval');
+    expect(alt3.guestCount).toBeLessThan(280);
+    expect(alt3.budgetCeilingPaise).toBe(mockScenario.budgetCeilingPaise); // Preserves budget ceiling!
+    expect(alt3.changes.some((c) => c.field === 'guestCount')).toBe(true);
+  });
+
 });

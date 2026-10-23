@@ -8,6 +8,7 @@
  * All monetary values are in paise (1/100 INR).
  */
 
+import { formatPaise } from '@/lib/budget-engine';
 import type {
   Constraint,
   ConstraintType,
@@ -584,153 +585,164 @@ export function generateAlternatives(
   void _constraints;
   const alternatives: Scenario[] = [];
   const total = projectedTotal(scenario);
-  const priorityAreas = event.preferences.priorityAreas;
+  const priorityAreas = event.preferences.priorityAreas ?? [];
+  const originalCeiling = scenario.budgetCeilingPaise;
+  const originalGuestCount = scenario.guestCount;
+  const overshoot = total - originalCeiling;
 
-  // ── Alternative 1: Trim non-priority spending ──
+  // ── Alternative 1: Strict Enforcement — Discretionary Cost Optimization ──
+  // Preserves BOTH the requested guest count AND the hard budget ceiling.
+  // Never touches:
+  //   - Categories in priorityAreas
+  //   - Core mandatory categories ('catering', 'venue')
+  //   - Committed or paid items
   {
-    const nonPriorityCategories: BudgetCategory[] = [
+    const protectedCategories = new Set<BudgetCategory>([
       'venue',
       'catering',
-      'decoration',
-      'photography',
-      'entertainment',
-      'transport',
-      'equipment',
-      'attire',
-      'invitations',
-      'gifts',
-      'other',
-    ].filter(
-      (cat) => !priorityAreas.includes(cat),
-    ) as BudgetCategory[];
+      ...(priorityAreas as BudgetCategory[]),
+    ]);
 
-    let overshoot = total - scenario.budgetCeilingPaise;
-    if (overshoot <= 0) overshoot = 0;
-
+    let remainingDeficitToCut = Math.max(0, overshoot);
     const trimmedItems: BudgetItem[] = scenario.budgetItems.map((item) => {
-      if (
-        overshoot > 0 &&
-        nonPriorityCategories.includes(item.category) &&
-        item.category !== 'contingency'
-      ) {
-        // Reduce each non-priority item by up to 30%.
-        const reduction = Math.min(
-          Math.floor(item.amountPaise * 0.3),
-          overshoot,
-        );
-        overshoot -= reduction;
+      const isEligible =
+        !protectedCategories.has(item.category) &&
+        item.category !== 'contingency' &&
+        item.status !== 'committed' &&
+        item.status !== 'paid';
+
+      if (isEligible && remainingDeficitToCut > 0) {
+        const maxCutForItem = Math.floor(item.amountPaise * 0.5);
+        const cut = Math.min(maxCutForItem, remainingDeficitToCut);
+        remainingDeficitToCut -= cut;
         return {
           ...item,
-          amountPaise: item.amountPaise - reduction,
-          sourceNote: `Reduced by ${reduction} paise to fit budget`,
+          amountPaise: item.amountPaise - cut,
+          sourceNote: `Discretionary reduction of ${formatPaise(cut)} applied to preserve budget ceiling`,
           updatedAt: new Date().toISOString(),
         };
       }
       return { ...item };
     });
 
+    const alt1Projected = projectedTotal({ ...scenario, budgetItems: trimmedItems });
+    const isStrictlyFeasible = alt1Projected <= originalCeiling && scenario.guestCount <= event.venueCapacity;
+
+    const alt1Name = isStrictlyFeasible
+      ? `Option 1: Discretionary Optimization (Preserves ${originalGuestCount} Guests & ${formatPaise(originalCeiling)} Ceiling)`
+      : `Option 1: Max Discretionary Trim (Leaves ${formatPaise(alt1Projected - originalCeiling)} Deficit — Infeasible)`;
+
+    const alt1Description = isStrictlyFeasible
+      ? `Reduced discretionary expenses by ${formatPaise(total - alt1Projected)} across non-priority categories to strictly honor the ${formatPaise(originalCeiling)} ceiling while accommodating all ${originalGuestCount} guests.`
+      : `Even after trimming all eligible discretionary expenses by ${formatPaise(total - alt1Projected)}, a deficit of ${formatPaise(alt1Projected - originalCeiling)} remains. Cannot accommodate ${originalGuestCount} guests within ${formatPaise(originalCeiling)} without relaxing either the budget ceiling or guest count.`;
+
     const alt1: Scenario = {
       ...scenario,
       id: crypto.randomUUID(),
       parentScenarioId: scenario.id,
-      name: 'Alternative 1 – Reduce non-priority spending',
-      description:
-        'Non-priority budget categories have been trimmed by up to 30% to bring the total within the budget ceiling.',
+      name: alt1Name,
+      description: alt1Description,
       status: 'proposed',
+      guestCount: originalGuestCount,
+      budgetCeilingPaise: originalCeiling,
       budgetItems: trimmedItems,
       constraints: [],
       changes: [
         {
           field: 'budgetItems',
-          label: 'Budget Items',
+          label: 'Discretionary Expenses Trimmed',
           originalValue: total,
-          proposedValue: projectedTotal({ ...scenario, budgetItems: trimmedItems }),
-          impact: 'Reduced non-priority spending to fit budget.',
+          proposedValue: alt1Projected,
+          impact: isStrictlyFeasible
+            ? `Saved ${formatPaise(total - alt1Projected)} to preserve original ${formatPaise(originalCeiling)} ceiling.`
+            : `Saved ${formatPaise(total - alt1Projected)}, but deficit of ${formatPaise(alt1Projected - originalCeiling)} remains.`,
         },
       ],
-      warnings: [],
-      isFeasible: false,
+      warnings: isStrictlyFeasible
+        ? []
+        : [`Discretionary cuts alone cannot close the ${formatPaise(alt1Projected - originalCeiling)} gap under the ${formatPaise(originalCeiling)} ceiling.`],
+      isFeasible: isStrictlyFeasible,
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
     };
 
-    // Re-evaluate constraints for this alternative.
-    const evaluated = evaluateConstraints(
+    const evaluated1 = evaluateConstraints(
       buildDefaultConstraints(event, alt1),
       alt1,
       event,
     );
-    const feasibility = checkFeasibility(evaluated);
-
-    alt1.constraints = evaluated;
-    alt1.isFeasible = feasibility.feasible;
+    const feasibility1 = checkFeasibility(evaluated1);
+    alt1.constraints = evaluated1;
+    alt1.isFeasible = feasibility1.feasible;
     alt1.feasibilityNotes = [
-      ...feasibility.hardViolations.map((c) => c.violationMessage ?? c.name),
-      ...feasibility.preferenceWarnings.map(
+      ...feasibility1.hardViolations.map((c) => c.violationMessage ?? c.name),
+      ...feasibility1.preferenceWarnings.map(
         (c) => `Preference: ${c.violationMessage ?? c.name}`,
       ),
     ];
-    alt1.warnings = alt1.feasibilityNotes;
+    if (!alt1.isFeasible && alt1.warnings.length === 0) {
+      alt1.warnings = alt1.feasibilityNotes;
+    }
 
     alternatives.push(alt1);
   }
 
-  // ── Alternative 2: Increase budget ceiling ──
+  // ── Alternative 2: User-Approved Constraint Relaxation — Budget Ceiling Expansion ──
+  // Explicitly labeled as requiring user approval to relax the budget constraint.
   {
-    // Set ceiling to projected total + 10% buffer.
-    const newCeiling = Math.ceil(total * 1.1);
+    const newCeiling = total;
 
     const alt2: Scenario = {
       ...scenario,
       id: crypto.randomUUID(),
       parentScenarioId: scenario.id,
-      name: 'Alternative 2 – Increase budget',
-      description: `Budget ceiling increased to ${newCeiling} paise (projected total + 10% buffer).`,
+      name: `Option 2: [Relaxes Budget Ceiling] Expand Budget to ${formatPaise(newCeiling)} (Requires Host Approval)`,
+      description: `Accommodates all ${originalGuestCount} guests and preserves full catering standard without cuts, but explicitly requires host approval to relax the hard budget ceiling from ${formatPaise(originalCeiling)} to ${formatPaise(newCeiling)} (+${formatPaise(newCeiling - originalCeiling)}).`,
       status: 'proposed',
+      guestCount: originalGuestCount,
       budgetCeilingPaise: newCeiling,
       budgetItems: scenario.budgetItems.map((item) => ({ ...item })),
       constraints: [],
       changes: [
         {
           field: 'budgetCeilingPaise',
-          label: 'Budget Ceiling',
-          originalValue: scenario.budgetCeilingPaise,
+          label: 'Explicit Budget Ceiling Relaxation',
+          originalValue: originalCeiling,
           proposedValue: newCeiling,
-          impact: 'Increased budget to accommodate all planned items.',
+          impact: `Increases budget ceiling by ${formatPaise(newCeiling - originalCeiling)} to fully fund ${originalGuestCount} guests. Requires explicit host authorization.`,
         },
       ],
-      warnings: [],
+      warnings: [
+        `Explicit Constraint Relaxation: Requires host approval to increase the budget ceiling from ${formatPaise(originalCeiling)} to ${formatPaise(newCeiling)}.`,
+      ],
       isFeasible: false,
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
     };
 
-    const evaluated = evaluateConstraints(
+    const evaluated2 = evaluateConstraints(
       buildDefaultConstraints(event, alt2),
       alt2,
       event,
     );
-    const feasibility = checkFeasibility(evaluated);
-
-    alt2.constraints = evaluated;
-    alt2.isFeasible = feasibility.feasible;
+    const feasibility2 = checkFeasibility(evaluated2);
+    alt2.constraints = evaluated2;
+    alt2.isFeasible = feasibility2.feasible;
     alt2.feasibilityNotes = [
-      ...feasibility.hardViolations.map((c) => c.violationMessage ?? c.name),
-      ...feasibility.preferenceWarnings.map(
+      ...feasibility2.hardViolations.map((c) => c.violationMessage ?? c.name),
+      ...feasibility2.preferenceWarnings.map(
         (c) => `Preference: ${c.violationMessage ?? c.name}`,
       ),
     ];
-    alt2.warnings = alt2.feasibilityNotes;
 
     alternatives.push(alt2);
   }
 
-  // ── Alternative 3: Reduce guest count ──
+  // ── Alternative 3: User-Approved Constraint Relaxation — Guest Count Adjustment ──
+  // Explicitly labeled as requiring user approval to scale down guest count.
   {
-    // Calculate a guest count that fits the budget by scaling down per-person
-    // costs. If all costs are fixed, reduce guest count to venue capacity.
     const fixedCosts = scenario.budgetItems
       .filter((item) => item.costType === 'fixed')
       .reduce((sum, item) => sum + item.amountPaise, 0);
@@ -749,35 +761,29 @@ export function generateAlternatives(
       )
       .reduce((sum, item) => sum + item.amountPaise, 0);
 
-    let newGuestCount: number;
+    let maxFittingGuests: number;
     if (perPersonRateTotal > 0) {
-      // budget = fixedCosts + (perPersonRate * guests) + nonPersonItems
-      const availableForGuests =
-        scenario.budgetCeilingPaise - fixedCosts - nonPersonItems;
-      newGuestCount = Math.max(
+      const availableForGuests = originalCeiling - fixedCosts - nonPersonItems;
+      maxFittingGuests = Math.max(
         1,
         Math.floor(availableForGuests / perPersonRateTotal),
       );
     } else {
-      // No per-person costs – reduce guest count to venue capacity or current
-      // count minus 20%, whichever is smaller.
-      newGuestCount = Math.max(
+      maxFittingGuests = Math.max(
         1,
-        Math.min(
-          event.venueCapacity,
-          Math.floor(scenario.guestCount * 0.8),
-        ),
+        Math.min(event.venueCapacity, Math.floor(originalGuestCount * 0.8)),
       );
     }
 
-    // Recalculate per-person budget items with the new guest count.
+    maxFittingGuests = Math.min(maxFittingGuests, event.venueCapacity);
+
     const adjustedItems: BudgetItem[] = scenario.budgetItems.map((item) => {
       if (item.costType === 'per_person' && item.unitRatePaise != null) {
         return {
           ...item,
-          unitCount: newGuestCount,
-          amountPaise: item.unitRatePaise * newGuestCount,
-          sourceNote: `Recalculated for ${newGuestCount} guests`,
+          unitCount: maxFittingGuests,
+          amountPaise: item.unitRatePaise * maxFittingGuests,
+          sourceNote: `Recalculated for adjusted ${maxFittingGuests} guest count`,
           updatedAt: new Date().toISOString(),
         };
       }
@@ -788,44 +794,45 @@ export function generateAlternatives(
       ...scenario,
       id: crypto.randomUUID(),
       parentScenarioId: scenario.id,
-      name: 'Alternative 3 – Reduce guest count',
-      description: `Guest count reduced from ${scenario.guestCount} to ${newGuestCount} to fit within budget.`,
+      name: `Option 3: [Relaxes Guest Target] Scale Guests to ${maxFittingGuests} (Requires Host Approval)`,
+      description: `Strictly honors the original ${formatPaise(originalCeiling)} budget ceiling and maintains catering quality per guest, but explicitly requires host approval to adjust the guest count from ${originalGuestCount} to ${maxFittingGuests}.`,
       status: 'proposed',
-      guestCount: newGuestCount,
+      guestCount: maxFittingGuests,
+      budgetCeilingPaise: originalCeiling,
       budgetItems: adjustedItems,
       constraints: [],
       changes: [
         {
           field: 'guestCount',
-          label: 'Guest Count',
-          originalValue: scenario.guestCount,
-          proposedValue: newGuestCount,
-          impact: 'Reduced guest count to bring per-person costs within budget.',
+          label: 'Explicit Guest Count Adjustment',
+          originalValue: originalGuestCount,
+          proposedValue: maxFittingGuests,
+          impact: `Adjusts guest count from ${originalGuestCount} to ${maxFittingGuests} to strictly fit the ${formatPaise(originalCeiling)} budget ceiling without sacrificing food quality. Requires explicit host authorization.`,
         },
       ],
-      warnings: [],
+      warnings: [
+        `Explicit Constraint Relaxation: Requires host approval to reduce guest count from ${originalGuestCount} to ${maxFittingGuests}.`,
+      ],
       isFeasible: false,
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
     };
 
-    const evaluated = evaluateConstraints(
+    const evaluated3 = evaluateConstraints(
       buildDefaultConstraints(event, alt3),
       alt3,
       event,
     );
-    const feasibility = checkFeasibility(evaluated);
-
-    alt3.constraints = evaluated;
-    alt3.isFeasible = feasibility.feasible;
+    const feasibility3 = checkFeasibility(evaluated3);
+    alt3.constraints = evaluated3;
+    alt3.isFeasible = feasibility3.feasible;
     alt3.feasibilityNotes = [
-      ...feasibility.hardViolations.map((c) => c.violationMessage ?? c.name),
-      ...feasibility.preferenceWarnings.map(
+      ...feasibility3.hardViolations.map((c) => c.violationMessage ?? c.name),
+      ...feasibility3.preferenceWarnings.map(
         (c) => `Preference: ${c.violationMessage ?? c.name}`,
       ),
     ];
-    alt3.warnings = alt3.feasibilityNotes;
 
     alternatives.push(alt3);
   }

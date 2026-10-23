@@ -66,16 +66,19 @@ function persistState(state: AppState): void {
 
 function loadPersistedState(): AppState | null {
   try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as AppState;
-    // Basic shape validation
+    const parsed = JSON.parse(raw);
     if (
+      parsed &&
+      typeof parsed === 'object' &&
       Array.isArray(parsed.events) &&
+      parsed.scenarios &&
       typeof parsed.scenarios === 'object' &&
       typeof parsed.version === 'number'
     ) {
-      return parsed;
+      return parsed as AppState;
     }
     return null;
   } catch {
@@ -173,6 +176,12 @@ function storeReducer(state: AppState, action: Action): AppState {
       const { eventId } = action.payload;
       const targetScenario = 'scenario' in action.payload ? action.payload.scenario : undefined;
       const targetScenarioId = 'scenarioId' in action.payload ? action.payload.scenarioId : action.payload.scenario.id;
+
+      const candidate = targetScenario ?? state.scenarios[targetScenarioId];
+      if (candidate && candidate.isFeasible === false) {
+        console.warn('SAMULLĀSA: Blocked approval of scenario with hard constraint violations.');
+        return state;
+      }
 
       nextState = {
         ...state,
