@@ -76,7 +76,7 @@ describe('Integration & End-to-End Planning Workflows', () => {
 
     // 8. Approve a feasible alternative
     const feasibleAlt = alternatives.find((a) => a.budgetCeilingPaise > wedding.budgetCeilingPaise)!;
-    const approved = approveScenario(feasibleAlt);
+    const approved = approveScenario(feasibleAlt, { allowConstraintRelaxation: true });
     expect(approved.status).toBe('approved');
     expect(approved.approvedAt).toBeDefined();
   });

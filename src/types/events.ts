@@ -165,6 +165,20 @@ export interface ScenarioChange {
   impact: string;
 }
 
+export type ScenarioClassification =
+  | 'strict_feasible'
+  | 'infeasible_deficit'
+  | 'relax_budget_ceiling'
+  | 'relax_guest_count';
+
+export interface ScenarioRelaxationDetails {
+  type: 'budget_ceiling' | 'guest_count';
+  originalValue: number;
+  proposedValue: number;
+  difference: number;
+  unit: string;
+}
+
 export interface Scenario {
   id: string;
   eventId: string;
@@ -183,6 +197,9 @@ export interface Scenario {
   warnings: string[];
   isFeasible: boolean;
   feasibilityNotes: string[];
+  classification?: ScenarioClassification;
+  relaxationDetails?: ScenarioRelaxationDetails;
+  remainingDeficitPaise?: number;
   createdAt: string;
   approvedAt?: string;
   version: number;

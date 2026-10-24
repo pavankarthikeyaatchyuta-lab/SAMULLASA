@@ -62,11 +62,13 @@ export async function POST(req: NextRequest) {
 
     // External LLM attempt when API key is provided
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (apiKey) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
+    if (apiKey) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      try {
         const systemPrompt = `You are an event planning change interpreter.
 Extract structured change requests from user instructions into JSON.
 Return JSON adhering to:
@@ -85,7 +87,7 @@ Return JSON adhering to:
 }`;
 
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -97,8 +99,6 @@ Return JSON adhering to:
           },
         );
 
-        clearTimeout(timeoutId);
-
         if (response.ok) {
           const data = await response.json();
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -108,21 +108,31 @@ Return JSON adhering to:
             if (validatedProposal.success) {
               return NextResponse.json({
                 proposal: validatedProposal.data as ChangeProposal,
-                source: 'gemini-ai',
+                source: `gemini-${model}`,
               });
             }
           }
         }
       } catch {
-        // Fall back seamlessly to deterministic engine
+        // Fall through to deterministic fallback
+      } finally {
+        // Always reliably release the timeout handle
+        clearTimeout(timeoutId);
       }
+
+      // External API configured but returned non-200, invalid output, or timed out
+      const proposal = parseNaturalLanguageChange(prompt);
+      return NextResponse.json({
+        proposal,
+        source: 'deterministic-fallback',
+      });
     }
 
-    // High-performance deterministic fallback
+    // High-performance deterministic engine when no API key is provided
     const proposal = parseNaturalLanguageChange(prompt);
     return NextResponse.json({
       proposal,
-      source: 'deterministic-engine',
+      source: 'deterministic-local',
     });
   } catch {
     // Never disclose internal error details or stack traces to clients

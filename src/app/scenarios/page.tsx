@@ -106,11 +106,16 @@ export default function ScenariosPage() {
     }
   };
 
-  const handleApprove = (scenarioToApprove: Scenario) => {
+  const handleApprove = (
+    scenarioToApprove: Scenario,
+    allowConstraintRelaxation = false,
+  ) => {
     if (!activeEvent) return;
 
     try {
-      const approved = approveScenario(scenarioToApprove);
+      const approved = approveScenario(scenarioToApprove, {
+        allowConstraintRelaxation,
+      });
       dispatch({
         type: 'APPROVE_SCENARIO',
         payload: {
@@ -121,7 +126,9 @@ export default function ScenariosPage() {
 
       setProposedScenario(null);
       setAlternatives([]);
-      setActionMessage(`✓ Successfully approved Scenario v${approved.version}. All records updated atomically.`);
+      setActionMessage(
+        `✓ Successfully approved Scenario v${approved.version}. All records updated atomically.`,
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Cannot approve scenario';
       setActionMessage(`Approval blocked: ${msg}`);
@@ -517,15 +524,15 @@ export default function ScenariosPage() {
             </Card>
           )}
 
-          {/* Feasible Alternatives Section */}
+          {/* Recovery Options Section */}
           {alternatives.length > 0 && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-bold text-[var(--foreground)]">
-                  Ranked Feasible Alternatives
+                  Recovery Options
                 </h3>
                 <p className="text-xs text-[var(--muted)]">
-                  Since the direct proposal exceeds the budget ceiling or violates constraints, the engine synthesized these deterministic alternatives:
+                  Since the direct proposal exceeds the budget ceiling or violates constraints, the deterministic engine synthesized these evaluated recovery options:
                 </p>
               </div>
 
@@ -537,18 +544,80 @@ export default function ScenariosPage() {
                     alt.guestCount,
                   );
 
+                  const isStrictFeasible = alt.classification === 'strict_feasible' || (alt.isFeasible && !alt.classification?.startsWith('relax_'));
+                  const isInfeasibleDeficit = alt.classification === 'infeasible_deficit' || (!alt.isFeasible && !alt.relaxationDetails);
+                  const isRelaxation = alt.classification?.startsWith('relax_');
+
                   return (
                     <Card key={alt.id} padding="md" className="flex flex-col justify-between border-2 border-[var(--accent)]/40">
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="accent">OPTION {idx + 1}</Badge>
-                          <Badge variant={alt.isFeasible ? 'success' : 'danger'}>
-                            {alt.isFeasible ? 'Feasible' : 'Infeasible'}
-                          </Badge>
+                          {isStrictFeasible && (
+                            <Badge variant="success">✓ Feasible (Preserves Constraints)</Badge>
+                          )}
+                          {isInfeasibleDeficit && (
+                            <Badge variant="danger">⚠ Infeasible (Deficit Remains)</Badge>
+                          )}
+                          {isRelaxation && (
+                            <Badge variant="warning">⚡ Requires Host Approval (Relaxation)</Badge>
+                          )}
                         </div>
 
                         <h4 className="font-bold text-base text-[var(--foreground)]">{alt.name}</h4>
                         <p className="text-xs text-[var(--muted)] mt-1">{alt.description}</p>
+
+                        {/* Explicit Constraint Relaxation Disclosure */}
+                        {alt.relaxationDetails && (
+                          <div className="my-3 p-2.5 bg-[var(--surface-secondary)] border border-[var(--accent)]/40 rounded-[var(--radius-sm)] text-xs">
+                            <p className="font-bold text-[var(--accent)] mb-1">
+                              Constraint Modification Disclosure:
+                            </p>
+                            {alt.relaxationDetails.type === 'budget_ceiling' ? (
+                              <div className="space-y-0.5">
+                                <div className="flex justify-between">
+                                  <span className="text-[var(--muted)]">Original Ceiling:</span>
+                                  <span>{formatPaise(alt.relaxationDetails.originalValue)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-[var(--muted)]">Proposed Ceiling:</span>
+                                  <span className="font-semibold">{formatPaise(alt.relaxationDetails.proposedValue)}</span>
+                                </div>
+                                <div className="flex justify-between border-t border-[var(--border)] pt-1 mt-1">
+                                  <span className="font-medium">Exact Budget Increase:</span>
+                                  <strong className="text-[var(--danger)]">+{formatPaise(alt.relaxationDetails.difference)}</strong>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-0.5">
+                                <div className="flex justify-between">
+                                  <span className="text-[var(--muted)]">Original Guest Target:</span>
+                                  <span>{alt.relaxationDetails.originalValue} guests</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-[var(--muted)]">Proposed Guest Target:</span>
+                                  <span className="font-semibold">{alt.relaxationDetails.proposedValue} guests</span>
+                                </div>
+                                <div className="flex justify-between border-t border-[var(--border)] pt-1 mt-1">
+                                  <span className="font-medium">Exact Guest Reduction:</span>
+                                  <strong className="text-[var(--danger)]">-{alt.relaxationDetails.difference} guests</strong>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Infeasible Deficit Disclosure */}
+                        {isInfeasibleDeficit && alt.remainingDeficitPaise && alt.remainingDeficitPaise > 0 && (
+                          <div className="my-3 p-2.5 bg-[var(--danger-bg)]/30 border border-[var(--danger)]/30 rounded-[var(--radius-sm)] text-xs">
+                            <p className="font-bold text-[var(--danger)]">
+                              Uncovered Deficit: {formatPaise(alt.remainingDeficitPaise)}
+                            </p>
+                            <p className="text-[var(--muted)] mt-0.5">
+                              Discretionary cuts cannot close this gap without cutting protected priority categories.
+                            </p>
+                          </div>
+                        )}
 
                         <div className="my-3 p-3 bg-[var(--surface-secondary)] rounded-[var(--radius-md)] text-xs space-y-1">
                           <div className="flex justify-between">
@@ -573,15 +642,35 @@ export default function ScenariosPage() {
                       </div>
 
                       <div className="pt-3 border-t border-[var(--border)]">
-                        <Button
-                          onClick={() => handleApprove(alt)}
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                          disabled={!alt.isFeasible}
-                        >
-                          Approve Option {idx + 1}
-                        </Button>
+                        {isInfeasibleDeficit ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full opacity-60 cursor-not-allowed"
+                            disabled={true}
+                            title="Cannot approve an infeasible option that violates hard constraints"
+                          >
+                            Cannot Approve (Infeasible)
+                          </Button>
+                        ) : isRelaxation ? (
+                          <Button
+                            onClick={() => handleApprove(alt, true)}
+                            variant="secondary"
+                            size="sm"
+                            className="w-full"
+                          >
+                            Approve Option {idx + 1} (Confirm Relaxation)
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => handleApprove(alt, false)}
+                            variant="primary"
+                            size="sm"
+                            className="w-full"
+                          >
+                            Approve Option {idx + 1}
+                          </Button>
+                        )}
                       </div>
                     </Card>
                   );

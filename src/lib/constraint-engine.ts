@@ -662,6 +662,8 @@ export function generateAlternatives(
         ? []
         : [`Discretionary cuts alone cannot close the ${formatPaise(alt1Projected - originalCeiling)} gap under the ${formatPaise(originalCeiling)} ceiling.`],
       isFeasible: isStrictlyFeasible,
+      classification: isStrictlyFeasible ? 'strict_feasible' : 'infeasible_deficit',
+      remainingDeficitPaise: isStrictlyFeasible ? 0 : alt1Projected - originalCeiling,
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
@@ -717,6 +719,14 @@ export function generateAlternatives(
         `Explicit Constraint Relaxation: Requires host approval to increase the budget ceiling from ${formatPaise(originalCeiling)} to ${formatPaise(newCeiling)}.`,
       ],
       isFeasible: false,
+      classification: 'relax_budget_ceiling',
+      relaxationDetails: {
+        type: 'budget_ceiling',
+        originalValue: originalCeiling,
+        proposedValue: newCeiling,
+        difference: newCeiling - originalCeiling,
+        unit: 'INR',
+      },
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
@@ -729,7 +739,7 @@ export function generateAlternatives(
     );
     const feasibility2 = checkFeasibility(evaluated2);
     alt2.constraints = evaluated2;
-    alt2.isFeasible = feasibility2.feasible;
+    alt2.isFeasible = false;
     alt2.feasibilityNotes = [
       ...feasibility2.hardViolations.map((c) => c.violationMessage ?? c.name),
       ...feasibility2.preferenceWarnings.map(
@@ -814,6 +824,14 @@ export function generateAlternatives(
         `Explicit Constraint Relaxation: Requires host approval to reduce guest count from ${originalGuestCount} to ${maxFittingGuests}.`,
       ],
       isFeasible: false,
+      classification: 'relax_guest_count',
+      relaxationDetails: {
+        type: 'guest_count',
+        originalValue: originalGuestCount,
+        proposedValue: maxFittingGuests,
+        difference: originalGuestCount - maxFittingGuests,
+        unit: 'guests',
+      },
       feasibilityNotes: [],
       createdAt: new Date().toISOString(),
       approvedAt: undefined,
@@ -826,7 +844,7 @@ export function generateAlternatives(
     );
     const feasibility3 = checkFeasibility(evaluated3);
     alt3.constraints = evaluated3;
-    alt3.isFeasible = feasibility3.feasible;
+    alt3.isFeasible = false;
     alt3.feasibilityNotes = [
       ...feasibility3.hardViolations.map((c) => c.violationMessage ?? c.name),
       ...feasibility3.preferenceWarnings.map(

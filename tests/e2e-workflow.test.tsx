@@ -136,7 +136,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
 
     // Check that hard constraints violation is caught
     expect(screen.getByText(/Hard Constraints Violated — Plan Is Infeasible/i)).toBeInTheDocument();
-    expect(screen.getByText('280 guests')).toBeInTheDocument();
+    expect(screen.getAllByText(/280 guests/i).length).toBeGreaterThanOrEqual(1);
 
     // Direct approve button should be disabled because plan is infeasible!
     const approveProposedBtn = screen.getByRole('button', { name: /Approve Proposed Scenario/i });
@@ -152,7 +152,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
     // 7. Re-simulate and approve Option 2 (user-approved budget relaxation)
     fireEvent.click(simulateBtn);
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /Ranked Feasible Alternatives/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Recovery Options/i })).toBeInTheDocument();
     });
 
     const approveAltBtn = screen.getByRole('button', { name: /Approve Option 2/i });

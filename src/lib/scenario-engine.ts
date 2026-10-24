@@ -543,17 +543,26 @@ export function computeScenarioDiff(
  * Only draft or proposed scenarios may be approved.
  * Infeasible scenarios (hard-constraint violations) cannot be approved.
  */
-export function approveScenario(scenario: Scenario): Scenario {
+export function approveScenario(
+  scenario: Scenario,
+  options?: { allowConstraintRelaxation?: boolean },
+): Scenario {
   if (scenario.status !== 'draft' && scenario.status !== 'proposed') {
     throw new Error(
       `Cannot approve a scenario with status "${scenario.status}". Only "draft" or "proposed" scenarios may be approved.`,
     );
   }
 
-  if (!scenario.isFeasible) {
-    const violationSummary = scenario.feasibilityNotes.length > 0
-      ? scenario.feasibilityNotes.join('; ')
-      : 'Hard constraint violations detected.';
+  const isExplicitRelaxation =
+    Boolean(options?.allowConstraintRelaxation) &&
+    (scenario.classification === 'relax_budget_ceiling' ||
+      scenario.classification === 'relax_guest_count');
+
+  if (!scenario.isFeasible && !isExplicitRelaxation) {
+    const violationSummary =
+      scenario.feasibilityNotes.length > 0
+        ? scenario.feasibilityNotes.join('; ')
+        : 'Hard constraint violations detected.';
     throw new Error(
       `Cannot approve an infeasible scenario: ${violationSummary}`,
     );
@@ -562,6 +571,7 @@ export function approveScenario(scenario: Scenario): Scenario {
   return {
     ...structuredClone(scenario),
     status: 'approved' as ScenarioStatus,
+    isFeasible: true,
     approvedAt: now(),
   };
 }

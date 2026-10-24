@@ -103,7 +103,7 @@ function updateScenarioRecord(
 
 // ─── Reducer ─────────────────────────────────────────────────────────────────
 
-function storeReducer(state: AppState, action: Action): AppState {
+export function storeReducer(state: AppState, action: Action): AppState {
   const timestamp = now();
   let nextState: AppState;
 
@@ -178,7 +178,7 @@ function storeReducer(state: AppState, action: Action): AppState {
       const targetScenarioId = 'scenarioId' in action.payload ? action.payload.scenarioId : action.payload.scenario.id;
 
       const candidate = targetScenario ?? state.scenarios[targetScenarioId];
-      if (candidate && candidate.isFeasible === false) {
+      if (candidate && candidate.isFeasible === false && !candidate.classification?.startsWith('relax_')) {
         console.warn('SAMULLĀSA: Blocked approval of scenario with hard constraint violations.');
         return state;
       }
@@ -189,6 +189,8 @@ function storeReducer(state: AppState, action: Action): AppState {
           e.id === eventId
             ? {
                 ...e,
+                guestCount: candidate ? candidate.guestCount : e.guestCount,
+                budgetCeilingPaise: candidate ? candidate.budgetCeilingPaise : e.budgetCeilingPaise,
                 currentScenarioId: targetScenarioId,
                 scenarioHistory: e.scenarioHistory.includes(targetScenarioId)
                   ? e.scenarioHistory

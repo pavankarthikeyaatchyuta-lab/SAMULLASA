@@ -63,11 +63,13 @@ export async function POST(req: NextRequest) {
 
     // External LLM attempt if configured
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (apiKey) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
+    if (apiKey) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      try {
         const prompt = `Generate 4 personalized, culturally resonant planning recommendations for a ${eventType}.
 Guest count: ${guestCount}
 Budget ceiling: ₹${(budgetPaise / 100).toLocaleString('en-IN')}
@@ -89,7 +91,7 @@ Return a JSON array of recommendation objects adhering to:
 ]`;
 
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -100,8 +102,6 @@ Return a JSON array of recommendation objects adhering to:
             signal: controller.signal,
           },
         );
-
-        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -116,13 +116,16 @@ Return a JSON array of recommendation objects adhering to:
                   id: item.id || `rec-llm-${idx + 1}`,
                   isGenerated: true,
                 })),
-                source: 'gemini-ai',
+                source: `gemini-${model}`,
               });
             }
           }
         }
       } catch {
         // Fall back gracefully to deterministic rule-based generator
+      } finally {
+        // Reliably release the timer resource
+        clearTimeout(timeoutId);
       }
     }
 
@@ -224,7 +227,7 @@ Return a JSON array of recommendation objects adhering to:
 
     return NextResponse.json({
       recommendations,
-      source: 'deterministic-personalization-engine',
+      source: apiKey ? 'deterministic-fallback' : 'deterministic-personalization-engine',
     });
   } catch {
     return NextResponse.json(
