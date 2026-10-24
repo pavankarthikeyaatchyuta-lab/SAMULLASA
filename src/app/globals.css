@@ -1,42 +1,42 @@
 @import "tailwindcss";
 
-/* SAMULLĀSA Design System — Premium Celebration Studio */
+/* SAMULLĀSA Design System — Luxury Velvet Dark Mode */
 :root {
-  /* Surfaces */
-  --background: #FAF7F2;          /* Warm luxury silk/pearl */
-  --foreground: #18121E;          /* Deep rich obsidian plum */
-  --surface: #FFFFFF;
-  --surface-secondary: #F6EFE9;   /* Warm linen cream */
-  --surface-elevated: #FFFFFF;
-  --border: #E8DCD1;              /* Warm champagne border */
-  --border-subtle: #F2E9E1;
+  /* Surfaces — Luxurious Velvet Obsidian */
+  --background: #0D0711;          /* Ultra-deep obsidian with velvet plum base */
+  --foreground: #FAF6FC;          /* Radiant crisp ivory / pearl */
+  --surface: #180F1E;             /* Deep plum slate surface */
+  --surface-secondary: #24172C;   /* Elevated surface with warm plum tone */
+  --surface-elevated: #2D1D37;    /* Floating modal & menu panels */
+  --border: #3A2645;              /* Gold-kissed dark plum border */
+  --border-subtle: #291B32;
   
   /* Brand colors */
-  --primary: #4A154B;             /* Royal Imperial Plum */
-  --primary-hover: #380F39;
+  --primary: #9C27B0;             /* Luminous Royal Imperial Plum */
+  --primary-hover: #AB47BC;
   --primary-foreground: #FFFFFF;
-  --primary-light: #F7EEFA;
-  --primary-muted: #EAD2F1;
+  --primary-light: rgba(156, 39, 176, 0.2);
+  --primary-muted: rgba(156, 39, 176, 0.4);
   
   /* Accent */
-  --accent: #B45309;              /* Festive Warm Amber Gold */
-  --accent-hover: #92400E;
-  --accent-foreground: #FFFFFF;
-  --accent-light: #FEF3C7;
+  --accent: #F59E0B;              /* Radiant Festive Warm Amber Gold */
+  --accent-hover: #FBBF24;
+  --accent-foreground: #000000;
+  --accent-light: rgba(245, 158, 11, 0.16);
   
   /* Status colors */
-  --success: #15803D;
-  --success-bg: #DCFCE7;
-  --warning: #B45309;
-  --warning-bg: #FEF3C7;
-  --danger: #B91C1C;
-  --danger-bg: #FEE2E2;
-  --info: #1D4ED8;
-  --info-bg: #DBEAFE;
+  --success: #22C55E;             /* Radiant Emerald */
+  --success-bg: rgba(34, 197, 94, 0.14);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.14);
+  --danger: #EF4444;              /* Vibrant Coral Ruby */
+  --danger-bg: rgba(239, 68, 68, 0.16);
+  --info: #38BDF8;                /* Electric Cyan */
+  --info-bg: rgba(56, 189, 248, 0.14);
   
   /* Semantic */
-  --muted: #645C6A;
-  --muted-foreground: #958B9C;
+  --muted: #A89AAF;               /* Crisp legible warm silver */
+  --muted-foreground: #796A82;
   
   /* Spacing / Radius */
   --radius-sm: 8px;
@@ -82,22 +82,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Luxury card styling */
+/* Luxury card styling with subtle celebratory glow */
 .celebration-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 12px -2px rgba(74, 21, 75, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(156, 39, 176, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .celebration-card:hover {
-  box-shadow: 0 8px 28px -4px rgba(74, 21, 75, 0.08), 0 2px 8px -2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.7), 0 0 25px -2px rgba(245, 158, 11, 0.12);
 }
 
 /* Focus ring */
 *:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -119,16 +120,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface-secondary);
+  background: #0D0711;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8CBC0;
+  background: #3A2645;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+  background: #5A3B6B;
 }
 
 /* Skip to content link */

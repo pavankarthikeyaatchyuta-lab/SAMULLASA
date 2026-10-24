@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <StoreProvider>
           <AppShell>{children}</AppShell>

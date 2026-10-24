@@ -13,7 +13,7 @@ export default function DashboardPage() {
     state.events[0]?.id || '',
   );
 
-  // Quick Sandbox What-If state
+  // Quick Sandbox What-If state (200 Baseline vs 280 Stress Test)
   const [simGuests, setSimGuests] = useState<number>(200);
 
   const activeEvent = state.events.find((e) => e.id === selectedEventId) || state.events[0];
@@ -48,17 +48,17 @@ export default function DashboardPage() {
     });
   };
 
-  // If no events loaded yet: Luxury Hero Launchpad
+  // If no events loaded yet: Luxury Dark Launchpad with SINGLE Official Benchmark Demo
   if (state.events.length === 0) {
     return (
-      <div className="space-y-12 py-4">
+      <div className="space-y-10 py-4 max-w-5xl mx-auto">
         {/* Luxury Hero Banner */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/50 to-[var(--surface)] border border-[var(--border)] p-8 sm:p-12 shadow-sm">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-[var(--primary)]/5 blur-3xl pointer-events-none" />
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] p-8 sm:p-12 shadow-2xl">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-[var(--primary)]/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--accent)]/30 text-xs font-semibold text-[var(--accent)] shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--accent)]/30 text-xs font-semibold text-[var(--accent)] shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
               समुल्लासः • Celebration with Mathematical Clarity & Grace
             </div>
@@ -66,7 +66,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--foreground)] tracking-tight leading-tight">
                 Plan the Celebration.{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--accent-hover)]">
                   Master Every Trade-off.
                 </span>
               </h1>
@@ -75,13 +75,13 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            {/* Main Action Buttons */}
+            {/* Direct Action Row */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Button
                 onClick={handleLoadSample}
                 variant="primary"
                 size="lg"
-                className="shadow-md shadow-[var(--primary)]/20 px-6 py-3 font-semibold text-base"
+                className="shadow-lg shadow-[var(--primary)]/30 px-7 py-3.5 font-bold text-base"
               >
                 Load Sample Wedding (₹5L / 200 Guests)
               </Button>
@@ -90,14 +90,14 @@ export default function DashboardPage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="px-6 py-3 font-semibold text-base bg-[var(--surface)] hover:bg-[var(--surface-secondary)] border-[var(--border)]"
+                  className="px-6 py-3.5 font-semibold text-base bg-[var(--surface)] hover:bg-[var(--surface-secondary)] border-[var(--border)]"
                 >
                   + Create Custom Celebration
                 </Button>
               </Link>
 
               <Link href="/scenarios">
-                <Button variant="ghost" size="lg" className="text-sm font-semibold text-[var(--primary)]">
+                <Button variant="ghost" size="lg" className="text-sm font-semibold text-[var(--accent)]">
                   Explore Adaptive Simulator →
                 </Button>
               </Link>
@@ -105,143 +105,95 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Preset Blueprint Launch Cards */}
-        <section className="space-y-5">
+        {/* Single Signature Demo Showcase Card */}
+        <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-[var(--foreground)]">Curated Celebration Blueprints</h2>
-              <p className="text-xs sm:text-sm text-[var(--muted)]">Choose a celebration archetype to launch complete budgets, timelines, and vendor workflows</p>
+              <h2 className="text-xl font-bold text-[var(--foreground)]">Official Demonstration Blueprint</h2>
+              <p className="text-xs sm:text-sm text-[var(--muted)]">Complete end-to-end wedding plan with budgets, date-aware tasks, vendor contracts, and constraints</p>
             </div>
-            <Badge variant="accent">3 ARCHETYPES</Badge>
+            <Badge variant="accent">SIGNATURE DEMO</Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Wedding Blueprint */}
-            <div className="celebration-card p-6 flex flex-col justify-between space-y-4 border-t-4 border-t-[var(--primary)]">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl" role="img" aria-label="Wedding">💍</span>
-                  <Badge variant="accent">WEDDING</Badge>
+          <div className="celebration-card p-6 sm:p-8 border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/50 to-[var(--surface)] space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-[var(--accent-light)] border border-[var(--accent)]/30 flex items-center justify-center text-2xl shadow-inner">
+                  💍
                 </div>
-                <h3 className="text-lg font-bold text-[var(--foreground)]">Royal South Indian Wedding</h3>
-                <p className="text-xs text-[var(--muted)] leading-relaxed">
-                  Traditional mandapam, Carnatic classical nadaswaram, 32-item authentic Sadya feast, wheelchair access, and multi-tier vendor quotes.
-                </p>
-                <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Budget Ceiling:</span>
-                    <strong className="text-[var(--foreground)]">₹5,00,000</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Guest Capacity:</span>
-                    <strong className="text-[var(--foreground)]">200 Guests (Venue max 300)</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Timeline Horizon:</span>
-                    <strong className="text-[var(--foreground)]">3 Months (10 Milestones)</strong>
-                  </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-[var(--foreground)]">Royal South Indian Wedding</h3>
+                  <p className="text-xs text-[var(--muted)]">Ananya & Vikram • Chennai, Tamil Nadu • Traditional Heritage Theme</p>
                 </div>
               </div>
-              <Button onClick={handleLoadSample} variant="primary" size="sm" className="w-full">
-                Load Wedding Blueprint
+              <Badge variant="success">✓ Pre-validated Constraints</Badge>
+            </div>
+
+            <p className="text-sm text-[var(--muted)] leading-relaxed">
+              Fully configured wedding celebration featuring traditional mandapam venue rental, authentic 32-item Sadya catering feast (₹1,200/person), professional photography, floral decoration, music entertainment, and wheelchair-accessible facilities.
+            </p>
+
+            {/* 4 Feature Pillars of Demo */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs">
+              <div>
+                <span className="text-[var(--muted)] block font-medium">Budget Ceiling</span>
+                <strong className="text-base font-extrabold text-[var(--primary)]">₹5,00,000.00</strong>
+              </div>
+              <div>
+                <span className="text-[var(--muted)] block font-medium">Guest Capacity</span>
+                <strong className="text-base font-extrabold text-[var(--foreground)]">200 / 300 Max</strong>
+              </div>
+              <div>
+                <span className="text-[var(--muted)] block font-medium">Timeline Horizon</span>
+                <strong className="text-base font-extrabold text-[var(--accent)]">3 Months (10 Tasks)</strong>
+              </div>
+              <div>
+                <span className="text-[var(--muted)] block font-medium">Shortlisted Vendors</span>
+                <strong className="text-base font-extrabold text-[var(--foreground)]">3 Quoted</strong>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Button
+                onClick={handleLoadSample}
+                variant="primary"
+                size="md"
+                className="font-bold shadow-md shadow-[var(--primary)]/20"
+              >
+                Launch Signature Wedding Demo
               </Button>
-            </div>
-
-            {/* Milestone Birthday Blueprint */}
-            <div className="celebration-card p-6 flex flex-col justify-between space-y-4 border-t-4 border-t-[var(--accent)]">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl" role="img" aria-label="Birthday">🎂</span>
-                  <Badge variant="info">MILESTONE BIRTHDAY</Badge>
-                </div>
-                <h3 className="text-lg font-bold text-[var(--foreground)]">50th Golden Jubilee Birthday</h3>
-                <p className="text-xs text-[var(--muted)] leading-relaxed">
-                  Rooftop banquet, retro jazz duo, live charcoal barbecue grill, memory retrospective video wall, and personalized guest favors.
-                </p>
-                <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Budget Target:</span>
-                    <strong className="text-[var(--foreground)]">₹2,50,000</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Guest Count:</span>
-                    <strong className="text-[var(--foreground)]">80 Close Guests</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Timeline Horizon:</span>
-                    <strong className="text-[var(--foreground)]">6 Weeks</strong>
-                  </div>
-                </div>
-              </div>
-              <Link href="/events/new" className="w-full">
-                <Button variant="outline" size="sm" className="w-full">
-                  Create Birthday Plan
-                </Button>
-              </Link>
-            </div>
-
-            {/* Community Festival Blueprint */}
-            <div className="celebration-card p-6 flex flex-col justify-between space-y-4 border-t-4 border-t-[var(--success)]">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl" role="img" aria-label="Community Festival">🪔</span>
-                  <Badge variant="success">COMMUNITY UTSAV</Badge>
-                </div>
-                <h3 className="text-lg font-bold text-[var(--foreground)]">Diwali Community Mela & Feast</h3>
-                <p className="text-xs text-[var(--muted)] leading-relaxed">
-                  Open amphitheater, eco-friendly floral rangoli, 10 food stalls, folk dance performers, crowd safety management, and municipal approvals.
-                </p>
-                <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Budget Ceiling:</span>
-                    <strong className="text-[var(--foreground)]">₹7,50,000</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Attendee Target:</span>
-                    <strong className="text-[var(--foreground)]">450 Attendees</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--muted)]">Timeline Horizon:</span>
-                    <strong className="text-[var(--foreground)]">8 Weeks</strong>
-                  </div>
-                </div>
-              </div>
-              <Link href="/events/new" className="w-full">
-                <Button variant="outline" size="sm" className="w-full">
-                  Create Community Plan
-                </Button>
-              </Link>
+              <span className="text-xs text-[var(--muted)]">Loads all budget line items, tasks, and vendor quotations into your local workspace.</span>
             </div>
           </div>
         </section>
 
-        {/* Architectural Highlights */}
+        {/* Architectural Pillars */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[var(--border)]">
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)]">
+          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
             <span className="text-2xl mt-0.5" role="img" aria-label="Security">🛡️</span>
             <div>
-              <h4 className="text-sm font-bold text-[var(--foreground)]">Zero-Error Paise Math</h4>
-              <p className="text-xs text-[var(--muted)] mt-1">
-                All monetary computations execute in integer paise (1/100 INR) with strict variance tracking, eliminating float rounding drift.
+              <h4 className="text-sm font-bold text-[var(--foreground)]">Zero-Error Integer Math</h4>
+              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
+                All monetary computations execute strictly in integer paise (1/100 INR) with strict variance tracking, eliminating float rounding drift.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)]">
+          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
             <span className="text-2xl mt-0.5" role="img" aria-label="Engine">⚡</span>
             <div>
               <h4 className="text-sm font-bold text-[var(--foreground)]">Adaptive Constraint Graph</h4>
-              <p className="text-xs text-[var(--muted)] mt-1">
+              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
                 Guest count surges dynamically recalculate per-person costs, venue capacities, and vendor requirements with instant recovery options.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)]">
+          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
             <span className="text-2xl mt-0.5" role="img" aria-label="Timeline">📅</span>
             <div>
               <h4 className="text-sm font-bold text-[var(--foreground)]">Date-Aware Milestones</h4>
-              <p className="text-xs text-[var(--muted)] mt-1">
+              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
                 Graph-linked task deadlines synchronize tastings, invitations, and vendor payments backwards from celebration day.
               </p>
             </div>
@@ -251,18 +203,18 @@ export default function DashboardPage() {
     );
   }
 
-  // Calculate category totals for visual distribution
+  // Dark-mode optimized jewel-tone color tokens for budget distribution
   const categoryColors: Record<string, { bg: string; text: string; bar: string }> = {
-    catering: { bg: 'bg-amber-500/10', text: 'text-amber-700 dark:text-amber-300', bar: 'bg-amber-500' },
-    venue: { bg: 'bg-purple-500/10', text: 'text-purple-700 dark:text-purple-300', bar: 'bg-purple-600' },
-    decoration: { bg: 'bg-rose-500/10', text: 'text-rose-700 dark:text-rose-300', bar: 'bg-rose-500' },
-    photography: { bg: 'bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-300', bar: 'bg-emerald-600' },
-    entertainment: { bg: 'bg-indigo-500/10', text: 'text-indigo-700 dark:text-indigo-300', bar: 'bg-indigo-500' },
-    contingency: { bg: 'bg-slate-500/10', text: 'text-slate-700 dark:text-slate-300', bar: 'bg-slate-500' },
-    invitations: { bg: 'bg-orange-500/10', text: 'text-orange-700 dark:text-orange-300', bar: 'bg-orange-500' },
-    transportation: { bg: 'bg-cyan-500/10', text: 'text-cyan-700 dark:text-cyan-300', bar: 'bg-cyan-500' },
-    attire: { bg: 'bg-pink-500/10', text: 'text-pink-700 dark:text-pink-300', bar: 'bg-pink-500' },
-    other: { bg: 'bg-gray-500/10', text: 'text-gray-700 dark:text-gray-300', bar: 'bg-gray-500' },
+    catering: { bg: 'bg-amber-500/15', text: 'text-amber-400', bar: 'bg-amber-500' },
+    venue: { bg: 'bg-purple-500/15', text: 'text-purple-400', bar: 'bg-purple-500' },
+    decoration: { bg: 'bg-rose-500/15', text: 'text-rose-400', bar: 'bg-rose-500' },
+    photography: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', bar: 'bg-emerald-500' },
+    entertainment: { bg: 'bg-indigo-500/15', text: 'text-indigo-400', bar: 'bg-indigo-500' },
+    contingency: { bg: 'bg-slate-500/15', text: 'text-slate-400', bar: 'bg-slate-500' },
+    invitations: { bg: 'bg-orange-500/15', text: 'text-orange-400', bar: 'bg-orange-500' },
+    transportation: { bg: 'bg-cyan-500/15', text: 'text-cyan-400', bar: 'bg-cyan-500' },
+    attire: { bg: 'bg-pink-500/15', text: 'text-pink-400', bar: 'bg-pink-500' },
+    other: { bg: 'bg-gray-500/15', text: 'text-gray-400', bar: 'bg-gray-500' },
   };
 
   const totalPaise = budgetSummary ? budgetSummary.projectedTotalPaise : 1;
@@ -277,7 +229,7 @@ export default function DashboardPage() {
         .sort((a, b) => b.amount - a.amount)
     : [];
 
-  // Sandbox calculations
+  // Sandbox calculations for 200 vs 280 guests
   const perPersonItem = activeScenario?.budgetItems.find((i) => i.costType === 'per_person');
   const unitRate = perPersonItem?.unitRatePaise || 120000; // default ₹1,200
   const simCateringCost = simGuests * unitRate;
@@ -324,7 +276,7 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/scenarios">
-            <Button size="sm" variant="secondary" className="shadow-xs">
+            <Button size="sm" variant="secondary" className="shadow-xs font-semibold">
               ⚡ Adaptive Engine
             </Button>
           </Link>
@@ -334,7 +286,7 @@ export default function DashboardPage() {
       {activeEvent && activeScenario && budgetSummary && (
         <>
           {/* Luxury Event Header Banner */}
-          <div className="celebration-card p-6 sm:p-7 bg-gradient-to-r from-[var(--surface)] via-[var(--surface-secondary)]/40 to-[var(--surface)] border border-[var(--border)] relative overflow-hidden">
+          <div className="celebration-card p-6 sm:p-7 bg-gradient-to-r from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2.5">
                 <div className="flex flex-wrap items-center gap-2">
@@ -368,7 +320,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 sm:gap-8 bg-[var(--surface)]/90 backdrop-blur-xs p-4 sm:p-5 rounded-xl border border-[var(--border)] shadow-xs">
+              <div className="flex items-center gap-6 sm:gap-8 bg-[var(--surface-secondary)]/80 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-[var(--border)] shadow-md">
                 <div className="text-right">
                   <p className="text-xs text-[var(--muted)] font-semibold uppercase tracking-wider">Guest Count</p>
                   <p className="text-2xl sm:text-3xl font-black text-[var(--foreground)]">
@@ -471,7 +423,7 @@ export default function DashboardPage() {
                   Itemized distribution across celebration domains with deterministic paise precision
                 </p>
               </div>
-              <Link href="/budget" className="text-xs font-bold text-[var(--primary)] hover:underline">
+              <Link href="/budget" className="text-xs font-bold text-[var(--accent)] hover:underline">
                 Open Budget Studio →
               </Link>
             </div>
@@ -498,12 +450,12 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={cat.category}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${colors.bg} ${colors.text} border border-current/10`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${colors.bg} ${colors.text} border border-current/20`}
                   >
                     <span className={`w-2 h-2 rounded-full ${colors.bar}`} />
                     <span>{getCategoryLabel(cat.category as never)}</span>
-                    <span className="font-bold opacity-90">{formatPaise(cat.amount)}</span>
-                    <span className="text-[10px] opacity-70">({Math.round(cat.percent)}%)</span>
+                    <span className="font-bold">{formatPaise(cat.amount)}</span>
+                    <span className="text-[10px] opacity-80">({Math.round(cat.percent)}%)</span>
                   </div>
                 );
               })}
@@ -523,7 +475,7 @@ export default function DashboardPage() {
                     Click any task checkbox to update status directly. Changes persist automatically.
                   </p>
                 </div>
-                <Link href="/timeline" className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1">
+                <Link href="/timeline" className="text-xs font-bold text-[var(--accent)] hover:underline flex items-center gap-1">
                   View Full Timeline →
                 </Link>
               </div>
@@ -539,8 +491,8 @@ export default function DashboardPage() {
                         key={task.id}
                         className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                           isCompleted
-                            ? 'bg-[var(--success-bg)]/20 border-[var(--success)]/30'
-                            : 'bg-[var(--surface-secondary)]/30 border-[var(--border)] hover:bg-[var(--surface-secondary)]/70'
+                            ? 'bg-[var(--success-bg)] border-[var(--success)]/30'
+                            : 'bg-[var(--surface-secondary)]/50 border-[var(--border)] hover:bg-[var(--surface-secondary)]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -549,7 +501,7 @@ export default function DashboardPage() {
                             className={`w-6 h-6 rounded-md border flex items-center justify-center transition-colors ${
                               isCompleted
                                 ? 'bg-[var(--success)] border-[var(--success)] text-white'
-                                : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]'
+                                : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]'
                             }`}
                             aria-label={`Mark ${task.title} as ${isCompleted ? 'pending' : 'completed'}`}
                           >
@@ -570,7 +522,7 @@ export default function DashboardPage() {
                                 <span className="text-[var(--danger)] font-bold">● Critical</span>
                               )}
                               {task.priority === 'high' && (
-                                <span className="text-amber-600 font-semibold">● High</span>
+                                <span className="text-amber-400 font-semibold">● High</span>
                               )}
                             </p>
                           </div>
@@ -597,7 +549,7 @@ export default function DashboardPage() {
             {/* Right 1 Col: Interactive What-If Sandbox & Constraints */}
             <div className="space-y-6">
               {/* Interactive What-If Sandbox */}
-              <Card padding="md" className="celebration-card border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/20 to-[var(--surface)]">
+              <Card padding="md" className="celebration-card border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/30 to-[var(--surface)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-lg" role="img" aria-label="Simulator">⚡</span>
@@ -607,24 +559,23 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
-                  Test requirement modifications. Observe real-time dependency propagation across catering and capacity:
+                  Stress-test the benchmark wedding requirements: observe real-time dependency propagation across catering and capacity:
                 </p>
 
                 {/* Guest Count Selector Buttons */}
                 <div className="space-y-2 mb-3">
-                  <span className="text-xs font-semibold text-[var(--muted)]">Simulate Guest Count:</span>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <span className="text-xs font-semibold text-[var(--muted)]">Select Scenario Guest Count:</span>
+                  <div className="grid grid-cols-2 gap-2">
                     {[
-                      { guests: 200, label: '200 (Current)' },
-                      { guests: 240, label: '240 (+40)' },
-                      { guests: 280, label: '280 (Benchmark)' },
+                      { guests: 200, label: '200 Guests (Baseline)' },
+                      { guests: 280, label: '280 Guests (Stress Test)' },
                     ].map((btn) => (
                       <button
                         key={btn.guests}
                         onClick={() => setSimGuests(btn.guests)}
-                        className={`py-1.5 px-2 text-xs font-semibold rounded-[var(--radius-md)] border transition-all ${
+                        className={`py-2 px-2.5 text-xs font-bold rounded-[var(--radius-md)] border transition-all ${
                           simGuests === btn.guests
-                            ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                            ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-md shadow-[var(--primary)]/20'
                             : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--surface-secondary)]'
                         }`}
                       >
@@ -635,7 +586,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Dynamic Sandbox Result Preview */}
-                <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-1.5 text-xs mb-4 shadow-2xs">
+                <div className="p-3.5 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1.5 text-xs mb-4 shadow-inner">
                   <div className="flex justify-between">
                     <span className="text-[var(--muted)]">Simulated Total:</span>
                     <strong className="text-[var(--foreground)]">{formatPaise(simProjectedTotal)}</strong>
@@ -653,14 +604,14 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   {simIsOver && (
-                    <p className="text-[11px] text-[var(--danger)] pt-1 border-t border-[var(--border-subtle)] font-medium">
+                    <p className="text-[11px] text-[var(--danger)] pt-1.5 border-t border-[var(--border-subtle)] font-semibold">
                       ⚠ Hard constraint violated: Ceiling exceeded by {formatPaise(simVariance)}
                     </p>
                   )}
                 </div>
 
                 <Link href="/scenarios">
-                  <Button variant="primary" className="w-full shadow-sm">
+                  <Button variant="primary" className="w-full shadow-md font-bold">
                     Open Full Adaptive Engine →
                   </Button>
                 </Link>

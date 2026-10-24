@@ -190,11 +190,11 @@ interface BadgeProps {
 export function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
   const variants = {
     default: 'bg-[var(--surface-secondary)] text-[var(--foreground)] border border-[var(--border-subtle)]',
-    success: 'bg-[var(--success-bg)] text-[var(--success)]',
-    warning: 'bg-[var(--warning-bg)] text-[var(--warning)]',
-    danger: 'bg-[var(--danger-bg)] text-[var(--danger)]',
-    info: 'bg-[var(--info-bg)] text-[var(--info)]',
-    accent: 'bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)]/30 font-semibold',
+    success: 'bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success)]/30 font-semibold',
+    warning: 'bg-[var(--warning-bg)] text-[var(--warning)] border border-[var(--warning)]/30 font-semibold',
+    danger: 'bg-[var(--danger-bg)] text-[var(--danger)] border border-[var(--danger)]/30 font-semibold',
+    info: 'bg-[var(--info-bg)] text-[var(--info)] border border-[var(--info)]/30 font-semibold',
+    accent: 'bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)]/40 font-semibold',
   };
 
   return (
