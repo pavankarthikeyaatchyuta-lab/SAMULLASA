@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useStore } from '@/lib/store';
 
 const NAV_ITEMS = [
   {
@@ -71,6 +72,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const { state } = useStore();
+  const activeEvent = state?.events?.[0];
+  const activeEventName = activeEvent?.name || '';
+  const activeEventType = activeEvent?.type || '';
+
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
       {/* Accessibility Skip link */}
@@ -79,9 +85,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </a>
 
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 lg:px-8 py-3">
+      <header className="sticky top-0 z-40 bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--border)] px-4 lg:px-8 py-2.5">
         <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
-          {/* Mobile menu trigger */}
+          {/* Mobile menu trigger & Mobile logo */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -95,36 +101,41 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </button>
 
             {/* Mobile Logo */}
-            <Link href="/" className="lg:hidden flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <Link href="/" className="lg:hidden flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center text-white font-bold text-sm shadow-xs">
                 स
               </div>
               <span className="text-base font-bold text-[var(--primary)] tracking-tight">SAMULLĀSA</span>
             </Link>
 
-            {/* Desktop Brand Tagline */}
-            <div className="hidden lg:flex items-center gap-3 pl-64">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--primary-light)] text-[var(--primary)] border border-[var(--primary-muted)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />
-                Adaptive Celebration Intelligence
-              </span>
-              <span className="text-xs text-[var(--muted)]">
-                Zero Floating-Point Financial Engine • Indian Celebrations & Community
-              </span>
+            {/* Desktop Breadcrumb / Active Event */}
+            <div className="hidden lg:flex items-center gap-2.5 pl-64 text-xs">
+              <span className="text-[var(--muted)] font-medium">Studio /</span>
+              {activeEventName ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-light)] border border-[var(--accent)]/25 text-[var(--foreground)] font-semibold shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
+                  <span className="truncate max-w-xs">{activeEventName}</span>
+                  <span className="text-[10px] uppercase font-bold text-[var(--accent)] px-1.5 py-0.2 rounded bg-white/70">
+                    {activeEventType}
+                  </span>
+                </div>
+              ) : (
+                <span className="font-semibold text-[var(--foreground)]">Celebration Workspace</span>
+              )}
             </div>
           </div>
 
-          {/* Right Header Controls */}
+          {/* Right Header Controls: Status Indicator & Adaptive Simulator */}
           <div className="flex items-center gap-3">
-            <Link href="/events/new">
-              <button className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[var(--radius-md)] text-xs font-semibold bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-secondary)] text-[var(--foreground)] transition-colors shadow-xs">
-                <span>+</span> New Celebration
-              </button>
-            </Link>
+            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--surface-secondary)] border border-[var(--border)] text-[var(--foreground)] shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
+              <span>Paise Arithmetic • Zero Rounding Error</span>
+            </div>
 
             <Link href="/scenarios">
-              <button className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[var(--radius-md)] text-xs font-semibold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-white hover:opacity-95 transition-all shadow-xs">
-                <span>⚡</span> Adaptive Simulator
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] text-xs font-semibold bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition-all shadow-xs active:translate-y-px">
+                <span>⚡</span>
+                <span>Simulator</span>
               </button>
             </Link>
           </div>
@@ -145,27 +156,40 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-[var(--surface)] border-r border-[var(--border)] transform transition-transform duration-200 lg:translate-x-0 flex flex-col justify-between shadow-xs ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        aria-label="Main navigation"
+        aria-label="Main Navigation"
       >
-        <div className="flex flex-col h-full overflow-hidden">
+        <div>
           {/* Brand Header */}
-          <div className="p-5 border-b border-[var(--border)] bg-gradient-to-b from-[var(--surface-secondary)]/50 to-transparent">
-            <Link href="/" className="flex items-center gap-3 group" onClick={() => setSidebarOpen(false)}>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] via-[var(--primary-hover)] to-[#2A082C] flex items-center justify-center shadow-md shadow-[var(--primary)]/20 ring-2 ring-[var(--accent)]/30">
-                <span className="text-white font-bold text-lg tracking-tight">स</span>
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h1 className="text-base font-extrabold text-[var(--primary)] tracking-tight">SAMULLĀSA</h1>
+          <div className="p-5 border-b border-[var(--border)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-secondary)]/30">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] via-[var(--primary-hover)] to-[var(--accent)] flex items-center justify-center text-white font-extrabold text-lg shadow-sm border border-[var(--accent)]/30 group-hover:scale-105 transition-transform">
+                  स
                 </div>
-                <p className="text-[11px] font-medium text-[var(--muted)]">Celebration Studio</p>
-              </div>
-            </Link>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-extrabold text-base text-[var(--foreground)] tracking-tight">
+                      SAMULLĀSA
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-medium text-[var(--accent)] block tracking-wide">
+                    Celebration Studio
+                  </span>
+                </div>
+              </Link>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-1.5 rounded-md hover:bg-[var(--surface-secondary)] text-[var(--muted)]"
+                aria-label="Close sidebar"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
-          {/* Navigation Items */}
-          <div className="flex-1 py-5 px-3 space-y-1.5 overflow-y-auto">
-            <p className="px-3 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+          {/* Navigation Links */}
+          <div className="px-3 py-4 space-y-1">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[var(--muted)] mb-2">
               Planning Workspace
             </p>
             {NAV_ITEMS.map((item) => {
@@ -177,7 +201,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-semibold transition-all group ${
                     isActive
-                      ? 'bg-[var(--primary-light)] text-[var(--primary)] shadow-xs font-bold border-l-4 border-l-[var(--primary)]'
+                      ? 'bg-[var(--primary-light)] text-[var(--primary)] shadow-2xs font-bold border-l-4 border-l-[var(--primary)]'
                       : 'text-[var(--muted)] hover:bg-[var(--surface-secondary)] hover:text-[var(--foreground)]'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
@@ -201,20 +225,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </div>
+        </div>
 
-          {/* System Status Footer Card */}
-          <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-secondary)]/30">
-            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-xs space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[var(--foreground)] flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
-                  Engine Active
-                </span>
-                <span className="text-[10px] font-mono text-[var(--muted)]">v2.4</span>
+        {/* Sidebar Footer: Celebration Intelligence Seal */}
+        <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-secondary)]/20">
+          <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base" role="img" aria-label="Celebration">🪷</span>
+                <div>
+                  <p className="text-xs font-bold text-[var(--foreground)]">Samullāsa Studio</p>
+                  <p className="text-[10px] text-[var(--muted)]">Celebration Intelligence</p>
+                </div>
               </div>
-              <p className="text-[11px] text-[var(--muted)] leading-tight">
-                Paise integer arithmetic • Directed acyclic graphs • Local persistence
-              </p>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[var(--surface-secondary)] text-[var(--primary)] border border-[var(--border-subtle)]">
+                v2.4
+              </span>
+            </div>
+            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] text-[var(--muted)]">
+              <span className="flex items-center gap-1 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+                Paise-Accurate
+              </span>
+              <span className="font-semibold text-[var(--accent)]">Adaptive DAG</span>
             </div>
           </div>
         </div>

@@ -3,14 +3,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
-import { formatPaise, calculateBudgetSummary } from '@/lib/budget-engine';
-import { Card, Button, Badge, ProgressBar, StatusIndicator } from '@/components/ui';
+import { formatPaise, calculateBudgetSummary, getCategoryLabel } from '@/lib/budget-engine';
+import { Card, Button, Badge, ProgressBar } from '@/components/ui';
+import type { TaskStatus } from '@/types/events';
 
 export default function DashboardPage() {
   const { state, dispatch, getCurrentScenario } = useStore();
   const [selectedEventId, setSelectedEventId] = useState<string>(
     state.events[0]?.id || '',
   );
+
+  // Quick Sandbox What-If state
+  const [simGuests, setSimGuests] = useState<number>(200);
 
   const activeEvent = state.events.find((e) => e.id === selectedEventId) || state.events[0];
   const activeScenario = activeEvent ? getCurrentScenario(activeEvent.id) : undefined;
@@ -31,6 +35,20 @@ export default function DashboardPage() {
     dispatch({ type: 'LOAD_SAMPLE_DATA' });
   };
 
+  const handleToggleTask = (taskId: string, currentStatus: TaskStatus) => {
+    if (!activeScenario) return;
+    const nextStatus: TaskStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+    dispatch({
+      type: 'UPDATE_TASK',
+      payload: {
+        scenarioId: activeScenario.id,
+        taskId,
+        updates: { status: nextStatus },
+      },
+    });
+  };
+
+  // If no events loaded yet: Luxury Hero Launchpad
   if (state.events.length === 0) {
     return (
       <div className="space-y-12 py-4">
@@ -40,7 +58,7 @@ export default function DashboardPage() {
           <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-[var(--primary)]/5 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--accent)]/30 text-xs font-semibold text-[var(--accent)] shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--accent)]/30 text-xs font-semibold text-[var(--accent)] shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
               समुल्लासः • Celebration with Mathematical Clarity & Grace
             </div>
@@ -53,7 +71,7 @@ export default function DashboardPage() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg text-[var(--muted)] leading-relaxed">
-                Adaptive event intelligence for weddings, milestone birthdays, and community festivals. Experience deterministic paise-precision budgets, date-aware milestone dependency graphs, and instant constraint recovery.
+                Adaptive celebration intelligence for weddings, milestone birthdays, and community festivals. Experience deterministic integer-paise calculations, date-aware milestone dependency graphs, and instant constraint recovery.
               </p>
             </div>
 
@@ -233,6 +251,42 @@ export default function DashboardPage() {
     );
   }
 
+  // Calculate category totals for visual distribution
+  const categoryColors: Record<string, { bg: string; text: string; bar: string }> = {
+    catering: { bg: 'bg-amber-500/10', text: 'text-amber-700 dark:text-amber-300', bar: 'bg-amber-500' },
+    venue: { bg: 'bg-purple-500/10', text: 'text-purple-700 dark:text-purple-300', bar: 'bg-purple-600' },
+    decoration: { bg: 'bg-rose-500/10', text: 'text-rose-700 dark:text-rose-300', bar: 'bg-rose-500' },
+    photography: { bg: 'bg-emerald-500/10', text: 'text-emerald-700 dark:text-emerald-300', bar: 'bg-emerald-600' },
+    entertainment: { bg: 'bg-indigo-500/10', text: 'text-indigo-700 dark:text-indigo-300', bar: 'bg-indigo-500' },
+    contingency: { bg: 'bg-slate-500/10', text: 'text-slate-700 dark:text-slate-300', bar: 'bg-slate-500' },
+    invitations: { bg: 'bg-orange-500/10', text: 'text-orange-700 dark:text-orange-300', bar: 'bg-orange-500' },
+    transportation: { bg: 'bg-cyan-500/10', text: 'text-cyan-700 dark:text-cyan-300', bar: 'bg-cyan-500' },
+    attire: { bg: 'bg-pink-500/10', text: 'text-pink-700 dark:text-pink-300', bar: 'bg-pink-500' },
+    other: { bg: 'bg-gray-500/10', text: 'text-gray-700 dark:text-gray-300', bar: 'bg-gray-500' },
+  };
+
+  const totalPaise = budgetSummary ? budgetSummary.projectedTotalPaise : 1;
+  const categoryBreakdown = budgetSummary
+    ? Object.entries(budgetSummary.categoryBreakdown)
+        .map(([cat, amount]) => ({
+          category: cat,
+          amount,
+          percent: totalPaise > 0 ? (amount / totalPaise) * 100 : 0,
+        }))
+        .filter((c) => c.amount > 0)
+        .sort((a, b) => b.amount - a.amount)
+    : [];
+
+  // Sandbox calculations
+  const perPersonItem = activeScenario?.budgetItems.find((i) => i.costType === 'per_person');
+  const unitRate = perPersonItem?.unitRatePaise || 120000; // default ₹1,200
+  const simCateringCost = simGuests * unitRate;
+  const currentCateringCost = (activeScenario?.guestCount || 200) * unitRate;
+  const simProjectedTotal = (budgetSummary?.projectedTotalPaise || 50000000) - currentCateringCost + simCateringCost;
+  const simCeiling = activeScenario?.budgetCeilingPaise || 50000000;
+  const simVariance = simProjectedTotal - simCeiling;
+  const simIsOver = simVariance > 0;
+
   // Active Event Dashboard
   return (
     <div className="space-y-6">
@@ -279,10 +333,10 @@ export default function DashboardPage() {
 
       {activeEvent && activeScenario && budgetSummary && (
         <>
-          {/* Event Header Card */}
-          <div className="celebration-card p-6 bg-gradient-to-r from-[var(--surface)] via-[var(--surface-secondary)]/40 to-[var(--surface)]">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
+          {/* Luxury Event Header Banner */}
+          <div className="celebration-card p-6 sm:p-7 bg-gradient-to-r from-[var(--surface)] via-[var(--surface-secondary)]/40 to-[var(--surface)] border border-[var(--border)] relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+              <div className="space-y-2.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant={activeEvent.type === 'wedding' ? 'accent' : 'info'}>
                     {activeEvent.type.toUpperCase()}
@@ -294,26 +348,30 @@ export default function DashboardPage() {
                     {activeScenario.isFeasible ? '✓ Plan Feasible' : '⚠ Constraints Violated'}
                   </Badge>
                 </div>
-                <h2 className="text-2xl font-extrabold text-[var(--foreground)] tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-[var(--foreground)] tracking-tight">
                   {activeEvent.name}
                 </h2>
-                <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[var(--muted)]">
-                  <span>📅 {new Date(activeEvent.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-[var(--muted)]">
+                  <span className="inline-flex items-center gap-1 font-medium text-[var(--foreground)]">
+                    📅 {new Date(activeEvent.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
                   <span>•</span>
                   <span>📍 {activeEvent.location}</span>
                   {activeEvent.preferences?.culturalStyle && (
                     <>
                       <span>•</span>
-                      <span className="font-medium text-[var(--accent)]">{activeEvent.preferences.culturalStyle} Tradition</span>
+                      <span className="font-semibold text-[var(--accent)]">
+                        🪷 {activeEvent.preferences.culturalStyle} Tradition
+                      </span>
                     </>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 sm:gap-8 bg-[var(--surface)]/80 p-4 rounded-xl border border-[var(--border)] shadow-xs">
+              <div className="flex items-center gap-6 sm:gap-8 bg-[var(--surface)]/90 backdrop-blur-xs p-4 sm:p-5 rounded-xl border border-[var(--border)] shadow-xs">
                 <div className="text-right">
-                  <p className="text-xs text-[var(--muted)] font-medium">Guest Count</p>
-                  <p className="text-2xl sm:text-3xl font-extrabold text-[var(--foreground)]">
+                  <p className="text-xs text-[var(--muted)] font-semibold uppercase tracking-wider">Guest Count</p>
+                  <p className="text-2xl sm:text-3xl font-black text-[var(--foreground)]">
                     {activeScenario.guestCount}
                     <span className="text-xs font-normal text-[var(--muted)] ml-1">
                       / max {activeEvent.venueCapacity}
@@ -321,8 +379,8 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div className="text-right border-l border-[var(--border)] pl-6 sm:pl-8">
-                  <p className="text-xs text-[var(--muted)] font-medium">Budget Ceiling</p>
-                  <p className="text-2xl sm:text-3xl font-extrabold text-[var(--primary)]">
+                  <p className="text-xs text-[var(--muted)] font-semibold uppercase tracking-wider">Budget Ceiling</p>
+                  <p className="text-2xl sm:text-3xl font-black text-[var(--primary)]">
                     {formatPaise(activeScenario.budgetCeilingPaise)}
                   </p>
                 </div>
@@ -333,9 +391,12 @@ export default function DashboardPage() {
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card padding="md" className="celebration-card">
-              <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
-                Budget Projected
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
+                  Budget Projected
+                </p>
+                <span className="text-sm" role="img" aria-label="Rupee">💰</span>
+              </div>
               <p className="text-2xl font-black mt-1 text-[var(--foreground)]">
                 {formatPaise(budgetSummary.projectedTotalPaise)}
               </p>
@@ -349,9 +410,12 @@ export default function DashboardPage() {
             </Card>
 
             <Card padding="md" className="celebration-card">
-              <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
-                Remaining Buffer
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
+                  Remaining Buffer
+                </p>
+                <span className="text-sm" role="img" aria-label="Buffer">🛡️</span>
+              </div>
               <p className={`text-2xl font-black mt-1 ${budgetSummary.remainingPaise >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                 {formatPaise(budgetSummary.remainingPaise)}
               </p>
@@ -361,21 +425,27 @@ export default function DashboardPage() {
             </Card>
 
             <Card padding="md" className="celebration-card">
-              <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
-                Per-Guest Cost
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
+                  Per-Guest Cost
+                </p>
+                <span className="text-sm" role="img" aria-label="Guests">👥</span>
+              </div>
               <p className="text-2xl font-black mt-1 text-[var(--foreground)]">
                 {formatPaise(budgetSummary.perPersonPaise)}
               </p>
               <p className="text-xs text-[var(--muted)] mt-2">
-                Distributed over <strong className="text-[var(--foreground)]">{activeScenario.budgetItems.length}</strong> cost items
+                Across <strong className="text-[var(--foreground)]">{activeScenario.budgetItems.length} items</strong> (Catering ₹1.2k/pp)
               </p>
             </Card>
 
             <Card padding="md" className="celebration-card">
-              <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
-                Milestone Execution
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-wider">
+                  Milestone Execution
+                </p>
+                <span className="text-sm" role="img" aria-label="Milestones">🎯</span>
+              </div>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl font-black text-[var(--foreground)]">
                   {completedTasks.length}
@@ -390,16 +460,68 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Quick Navigation Panels */}
+          {/* Celebration Budget Distribution Meter */}
+          <Card padding="lg" className="celebration-card space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">
+                  Celebration Budget Allocation Breakdown
+                </h3>
+                <p className="text-xs text-[var(--muted)]">
+                  Itemized distribution across celebration domains with deterministic paise precision
+                </p>
+              </div>
+              <Link href="/budget" className="text-xs font-bold text-[var(--primary)] hover:underline">
+                Open Budget Studio →
+              </Link>
+            </div>
+
+            {/* Stacked Multi-Color Progress Bar */}
+            <div className="w-full h-3.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden flex shadow-inner">
+              {categoryBreakdown.map((cat) => {
+                const colors = categoryColors[cat.category] || categoryColors.other;
+                return (
+                  <div
+                    key={cat.category}
+                    className={`h-full ${colors.bar} transition-all duration-300 first:rounded-l-full last:rounded-r-full`}
+                    style={{ width: `${Math.max(2, cat.percent)}%` }}
+                    title={`${getCategoryLabel(cat.category as never)}: ${formatPaise(cat.amount)} (${Math.round(cat.percent)}%)`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Category Badges / Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {categoryBreakdown.map((cat) => {
+                const colors = categoryColors[cat.category] || categoryColors.other;
+                return (
+                  <div
+                    key={cat.category}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${colors.bg} ${colors.text} border border-current/10`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${colors.bar}`} />
+                    <span>{getCategoryLabel(cat.category as never)}</span>
+                    <span className="font-bold opacity-90">{formatPaise(cat.amount)}</span>
+                    <span className="text-[10px] opacity-70">({Math.round(cat.percent)}%)</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Two-Column Workspace Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Timeline Snapshot */}
+            {/* Left 2 Cols: Interactive Preparation Deadlines */}
             <Card padding="lg" className="lg:col-span-2 celebration-card">
               <div className="flex items-center justify-between mb-4 pb-2 border-b border-[var(--border)]">
                 <div>
                   <h3 className="text-base font-bold text-[var(--foreground)]">
-                    Upcoming Preparation Deadlines
+                    Upcoming Preparation Deadlines & Tasks
                   </h3>
-                  <p className="text-xs text-[var(--muted)]">Critical date-aware tasks linked to event schedule</p>
+                  <p className="text-xs text-[var(--muted)]">
+                    Click any task checkbox to update status directly. Changes persist automatically.
+                  </p>
                 </div>
                 <Link href="/timeline" className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1">
                   View Full Timeline →
@@ -409,64 +531,151 @@ export default function DashboardPage() {
               {activeScenario.tasks.length === 0 ? (
                 <p className="text-sm text-[var(--muted)] py-4">No tasks configured for this event.</p>
               ) : (
-                <div className="space-y-3">
-                  {activeScenario.tasks.slice(0, 5).map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-3.5 rounded-xl border border-[var(--border)] bg-[var(--surface-secondary)]/30 hover:bg-[var(--surface-secondary)]/70 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <StatusIndicator status={task.status} label="" />
-                        <div>
-                          <p className="text-sm font-semibold text-[var(--foreground)]">{task.title}</p>
-                          <p className="text-xs text-[var(--muted)]">
-                            Due: {task.dueDate} {task.priority === 'critical' && <span className="text-[var(--danger)] font-bold ml-1.5">● Critical</span>}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge
-                        variant={
-                          task.status === 'completed'
-                            ? 'success'
-                            : task.status === 'in_progress'
-                            ? 'info'
-                            : 'default'
-                        }
+                <div className="space-y-2.5">
+                  {activeScenario.tasks.slice(0, 6).map((task) => {
+                    const isCompleted = task.status === 'completed';
+                    return (
+                      <div
+                        key={task.id}
+                        className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                          isCompleted
+                            ? 'bg-[var(--success-bg)]/20 border-[var(--success)]/30'
+                            : 'bg-[var(--surface-secondary)]/30 border-[var(--border)] hover:bg-[var(--surface-secondary)]/70'
+                        }`}
                       >
-                        {task.status.replace('_', ' ')}
-                      </Badge>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleToggleTask(task.id, task.status)}
+                            className={`w-6 h-6 rounded-md border flex items-center justify-center transition-colors ${
+                              isCompleted
+                                ? 'bg-[var(--success)] border-[var(--success)] text-white'
+                                : 'border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]'
+                            }`}
+                            aria-label={`Mark ${task.title} as ${isCompleted ? 'pending' : 'completed'}`}
+                          >
+                            {isCompleted && (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                                <path d="M20 6L9 17l-5-5" />
+                              </svg>
+                            )}
+                          </button>
+
+                          <div>
+                            <p className={`text-sm font-semibold ${isCompleted ? 'line-through text-[var(--muted)]' : 'text-[var(--foreground)]'}`}>
+                              {task.title}
+                            </p>
+                            <p className="text-xs text-[var(--muted)] flex items-center gap-2">
+                              <span>Due: {task.dueDate}</span>
+                              {task.priority === 'critical' && (
+                                <span className="text-[var(--danger)] font-bold">● Critical</span>
+                              )}
+                              {task.priority === 'high' && (
+                                <span className="text-amber-600 font-semibold">● High</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <Badge
+                          variant={
+                            task.status === 'completed'
+                              ? 'success'
+                              : task.status === 'in_progress'
+                              ? 'info'
+                              : 'default'
+                          }
+                        >
+                          {task.status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </Card>
 
-            {/* Quick Actions & Adaptive Intelligence CTA */}
+            {/* Right 1 Col: Interactive What-If Sandbox & Constraints */}
             <div className="space-y-6">
-              <Card padding="md" className="celebration-card border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-secondary)]/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg" role="img" aria-label="Simulator">⚡</span>
-                  <h3 className="text-base font-bold text-[var(--foreground)]">Adaptive Simulator</h3>
+              {/* Interactive What-If Sandbox */}
+              <Card padding="md" className="celebration-card border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/20 to-[var(--surface)]">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg" role="img" aria-label="Simulator">⚡</span>
+                    <h3 className="text-base font-bold text-[var(--foreground)]">Quick What-If Simulator</h3>
+                  </div>
+                  <Badge variant="accent">SANDBOX</Badge>
                 </div>
-                <p className="text-xs text-[var(--muted)] leading-relaxed mb-4">
-                  Test requirement changes—such as guest count surges, budget reductions, or venue changes. The engine checks constraints and computes feasible alternatives.
+
+                <p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
+                  Test requirement modifications. Observe real-time dependency propagation across catering and capacity:
                 </p>
+
+                {/* Guest Count Selector Buttons */}
+                <div className="space-y-2 mb-3">
+                  <span className="text-xs font-semibold text-[var(--muted)]">Simulate Guest Count:</span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { guests: 200, label: '200 (Current)' },
+                      { guests: 240, label: '240 (+40)' },
+                      { guests: 280, label: '280 (Benchmark)' },
+                    ].map((btn) => (
+                      <button
+                        key={btn.guests}
+                        onClick={() => setSimGuests(btn.guests)}
+                        className={`py-1.5 px-2 text-xs font-semibold rounded-[var(--radius-md)] border transition-all ${
+                          simGuests === btn.guests
+                            ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs'
+                            : 'bg-[var(--surface)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--surface-secondary)]'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dynamic Sandbox Result Preview */}
+                <div className="p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)] space-y-1.5 text-xs mb-4 shadow-2xs">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)]">Simulated Total:</span>
+                    <strong className="text-[var(--foreground)]">{formatPaise(simProjectedTotal)}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)]">Budget Variance:</span>
+                    <strong className={simIsOver ? 'text-[var(--danger)] font-bold' : 'text-[var(--success)] font-bold'}>
+                      {simVariance === 0 ? '₹0.00 (On Target)' : `${simVariance > 0 ? '+' : ''}${formatPaise(simVariance)}`}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--muted)]">Venue Status:</span>
+                    <span className="font-semibold text-[var(--success)]">
+                      {simGuests} / {activeEvent.venueCapacity} Capacity (Fits ✓)
+                    </span>
+                  </div>
+                  {simIsOver && (
+                    <p className="text-[11px] text-[var(--danger)] pt-1 border-t border-[var(--border-subtle)] font-medium">
+                      ⚠ Hard constraint violated: Ceiling exceeded by {formatPaise(simVariance)}
+                    </p>
+                  )}
+                </div>
+
                 <Link href="/scenarios">
                   <Button variant="primary" className="w-full shadow-sm">
-                    Open Adaptive Simulator
+                    Open Full Adaptive Engine →
                   </Button>
                 </Link>
               </Card>
 
+              {/* Active Constraints Health Check */}
               <Card padding="md" className="celebration-card">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--border)]">
                   <h3 className="text-sm font-bold text-[var(--foreground)]">Active Constraints Health</h3>
                   <Badge variant={activeScenario.isFeasible ? 'success' : 'danger'}>
-                    {activeScenario.isFeasible ? 'Pass' : 'Violations'}
+                    {activeScenario.isFeasible ? 'All Passed' : 'Violations'}
                   </Badge>
                 </div>
                 <div className="space-y-2.5">
-                  {activeScenario.constraints.slice(0, 4).map((c) => (
+                  {activeScenario.constraints.slice(0, 5).map((c) => (
                     <div key={c.id} className="flex items-center justify-between text-xs py-1 border-b border-[var(--border-subtle)] last:border-none">
                       <span className="text-[var(--foreground)] font-medium">{c.name}</span>
                       <span className={c.isSatisfied ? 'text-[var(--success)] font-bold' : 'text-[var(--danger)] font-bold'}>
