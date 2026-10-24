@@ -4,8 +4,8 @@ import { StoreProvider } from '@/lib/store';
 import AppShell from '@/components/app-shell';
 
 export const metadata: Metadata = {
-  title: 'SAMULLĀSA — Adaptive Celebration & Event Planner',
-  description: 'AI-powered celebration and event planning workspace for PromptWars Virtual Challenge 5. Plan weddings, birthdays, and community events with budgets, timelines, vendors, and adaptive intelligence.',
+  title: 'SAMULLĀSA — Adaptive Celebration & Event Intelligence Studio',
+  description: 'AI-powered celebration and event planning workspace. Plan weddings, birthdays, and community gatherings with deterministic budgets, date-aware timelines, vendor workflows, and adaptive recovery intelligence.',
 };
 
 export default function RootLayout({

@@ -1,48 +1,48 @@
 @import "tailwindcss";
 
-/* SAMULLĀSA Design System */
+/* SAMULLĀSA Design System — Premium Celebration Studio */
 :root {
   /* Surfaces */
-  --background: #FFFDF7;          /* Warm ivory */
-  --foreground: #1A1A2E;          /* Deep navy text */
+  --background: #FAF7F2;          /* Warm luxury silk/pearl */
+  --foreground: #18121E;          /* Deep rich obsidian plum */
   --surface: #FFFFFF;
-  --surface-secondary: #FFF8F0;   /* Warm cream */
+  --surface-secondary: #F6EFE9;   /* Warm linen cream */
   --surface-elevated: #FFFFFF;
-  --border: #E8E0D4;              /* Warm border */
-  --border-subtle: #F0EBE3;
+  --border: #E8DCD1;              /* Warm champagne border */
+  --border-subtle: #F2E9E1;
   
   /* Brand colors */
-  --primary: #4A1D6A;             /* Deep plum */
-  --primary-hover: #3B1755;
+  --primary: #4A154B;             /* Royal Imperial Plum */
+  --primary-hover: #380F39;
   --primary-foreground: #FFFFFF;
-  --primary-light: #F3E8FF;
-  --primary-muted: #E9D5FF;
+  --primary-light: #F7EEFA;
+  --primary-muted: #EAD2F1;
   
   /* Accent */
-  --accent: #B8860B;              /* Restrained gold */
-  --accent-hover: #996F09;
+  --accent: #B45309;              /* Festive Warm Amber Gold */
+  --accent-hover: #92400E;
   --accent-foreground: #FFFFFF;
   --accent-light: #FEF3C7;
   
   /* Status colors */
-  --success: #166534;
+  --success: #15803D;
   --success-bg: #DCFCE7;
-  --warning: #92400E;
+  --warning: #B45309;
   --warning-bg: #FEF3C7;
-  --danger: #991B1B;
+  --danger: #B91C1C;
   --danger-bg: #FEE2E2;
-  --info: #1E40AF;
+  --info: #1D4ED8;
   --info-bg: #DBEAFE;
   
   /* Semantic */
-  --muted: #6B7280;
-  --muted-foreground: #9CA3AF;
+  --muted: #645C6A;
+  --muted-foreground: #958B9C;
   
   /* Spacing / Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
 @theme inline {
@@ -71,17 +71,28 @@
   --color-info-bg: var(--info-bg);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 /* Base styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxury card styling */
+.celebration-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px -2px rgba(74, 21, 75, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease-in-out;
+}
+
+.celebration-card:hover {
+  box-shadow: 0 8px 28px -4px rgba(74, 21, 75, 0.08), 0 2px 8px -2px rgba(0, 0, 0, 0.04);
 }
 
 /* Focus ring */
@@ -103,8 +114,8 @@ body {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -112,7 +123,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: #D8CBC0;
   border-radius: 4px;
 }
 

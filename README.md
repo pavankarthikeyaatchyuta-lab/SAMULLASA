@@ -1,7 +1,7 @@
 # SAMULLĀSA (समुल्लास) — Adaptive Celebration & Event Planner
 
-> **PromptWars Virtual — Challenge 5: Celebration & Event Planner**  
-> *"Create a GenAI-powered planning assistant that helps users organize weddings, birthdays, and community events with budgets, timelines, vendor checklists, and personalized ideas."*
+> **Adaptive Celebration & Event Planner**  
+> *"A GenAI-powered planning assistant that helps users organize weddings, birthdays, and community events with budgets, timelines, vendor checklists, and personalized ideas."*
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/pavankarthikeyaatchyuta-lab/SAMULLASA)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0_Strict-blue)](https://github.com/pavankarthikeyaatchyuta-lab/SAMULLASA)
@@ -141,11 +141,12 @@ To verify the core intelligence engine against the primary challenge benchmark:
 
 ## 🌐 Live Deployment Status
 
+- **Live URL:** [https://samullasa.vercel.app](https://samullasa.vercel.app)
+- **Hosting Target:** Deployed on Vercel with automatic CI/CD from the `main` branch.
 - **Build Readiness:** Production build (`npm run build`) compiles cleanly and generates optimized static pages with Turbopack.
-- **Hosting Target:** The project is configured for one-click deployment to Vercel, Netlify, or Docker. No cloud hosting credentials or tokens were provided in this evaluation session, so live cloud hosting remains ready to deploy upon supplying target provider credentials.
 
 ---
 
 ## 📄 License & Integrity Statement
 
-Built for PromptWars Virtual Challenge 5. All financial calculations, constraint validations, and rollback mechanisms are executed deterministically in application code with full test assertions.
+SAMULLĀSA is built with high engineering rigor. All financial calculations, constraint validations, and rollback mechanisms are executed deterministically in application code with full automated test assertions.

@@ -22,9 +22,9 @@ export function Button({
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-[var(--radius-md)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
-    primary: 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]',
-    secondary: 'bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]',
-    outline: 'border-2 border-[var(--border)] bg-transparent text-[var(--foreground)] hover:bg-[var(--surface-secondary)]',
+    primary: 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)] shadow-xs active:translate-y-px',
+    secondary: 'bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)] shadow-xs active:translate-y-px',
+    outline: 'border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface-secondary)] shadow-xs active:translate-y-px',
     ghost: 'bg-transparent text-[var(--foreground)] hover:bg-[var(--surface-secondary)]',
     danger: 'bg-[var(--danger)] text-white hover:bg-red-800',
   };
@@ -64,7 +64,7 @@ interface CardProps {
 export function Card({ children, className = '', padding = 'md' }: CardProps) {
   const paddings = { none: '', sm: 'p-3', md: 'p-5', lg: 'p-6' };
   return (
-    <div className={`bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-sm ${paddings[padding]} ${className}`}>
+    <div className={`bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-xs transition-shadow hover:shadow-sm ${paddings[padding]} ${className}`}>
       {children}
     </div>
   );
@@ -189,12 +189,12 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
   const variants = {
-    default: 'bg-[var(--surface-secondary)] text-[var(--foreground)]',
+    default: 'bg-[var(--surface-secondary)] text-[var(--foreground)] border border-[var(--border-subtle)]',
     success: 'bg-[var(--success-bg)] text-[var(--success)]',
     warning: 'bg-[var(--warning-bg)] text-[var(--warning)]',
     danger: 'bg-[var(--danger-bg)] text-[var(--danger)]',
     info: 'bg-[var(--info-bg)] text-[var(--info)]',
-    accent: 'bg-[var(--accent-light)] text-[var(--accent)]',
+    accent: 'bg-[var(--accent-light)] text-[var(--accent)] border border-[var(--accent)]/30 font-semibold',
   };
 
   return (
@@ -258,10 +258,12 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-      {icon && <div className="text-[var(--muted-foreground)] mb-4">{icon}</div>}
-      <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">{title}</h3>
-      <p className="text-sm text-[var(--muted)] max-w-md mb-6">{description}</p>
+    <div className="flex flex-col items-center justify-center py-12 px-6 text-center max-w-lg mx-auto">
+      <div className="w-14 h-14 rounded-full bg-[var(--surface-secondary)] border border-[var(--border)] flex items-center justify-center text-2xl mb-4 shadow-inner text-[var(--accent)]">
+        {icon || '✨'}
+      </div>
+      <h3 className="text-xl font-bold text-[var(--foreground)] mb-2 tracking-tight">{title}</h3>
+      <p className="text-sm text-[var(--muted)] leading-relaxed mb-6">{description}</p>
       {action}
     </div>
   );
