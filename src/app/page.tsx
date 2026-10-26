@@ -92,11 +92,11 @@ export default function DashboardPage() {
 
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] p-8 sm:p-14 shadow-2xl">
-          <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-[var(--primary)]/20 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-[var(--accent)]/15 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-[var(--primary)]/20 blur-3xl pointer-events-none animate-ambient" />
+          <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-[var(--accent)]/15 blur-3xl pointer-events-none animate-ambient" style={{ animationDelay: '-4.5s' }} />
 
           <div className="relative z-10 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-secondary)] border border-[var(--accent)]/35 text-xs font-semibold text-[var(--accent)] shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-secondary)] border border-[var(--accent)]/40 text-xs font-semibold text-[var(--accent)] shadow-xs sheen-pill">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
               समुल्लासः • Celebration with Mathematical Clarity & Grace
             </div>
@@ -174,20 +174,20 @@ export default function DashboardPage() {
                 <span className="text-[var(--success)]">100% Allocated • ₹0 Drift</span>
               </div>
               <div className="w-full h-3.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden flex shadow-inner">
-                <div className="h-full bg-amber-500" style={{ width: '48%' }} title="Catering: ₹2,40,000 (48%)" />
-                <div className="h-full bg-purple-500" style={{ width: '16%' }} title="Venue: ₹80,000 (16%)" />
-                <div className="h-full bg-rose-500" style={{ width: '12%' }} title="Decor: ₹60,000 (12%)" />
-                <div className="h-full bg-emerald-500" style={{ width: '9%' }} title="Photo: ₹45,000 (9%)" />
-                <div className="h-full bg-indigo-500" style={{ width: '6%' }} title="Entertainment: ₹30,000 (6%)" />
-                <div className="h-full bg-slate-500" style={{ width: '6%' }} title="Contingency: ₹30,000 (6%)" />
-                <div className="h-full bg-orange-500" style={{ width: '3%' }} title="Invitations: ₹15,000 (3%)" />
+                <div className="h-full cat-catering-bar" style={{ width: '48%' }} title="Catering: ₹2,40,000 (48%)" />
+                <div className="h-full cat-venue-bar" style={{ width: '16%' }} title="Venue: ₹80,000 (16%)" />
+                <div className="h-full cat-decor-bar" style={{ width: '12%' }} title="Decor: ₹60,000 (12%)" />
+                <div className="h-full cat-photo-bar" style={{ width: '9%' }} title="Photo: ₹45,000 (9%)" />
+                <div className="h-full cat-entertainment-bar" style={{ width: '6%' }} title="Entertainment: ₹30,000 (6%)" />
+                <div className="h-full cat-contingency-bar" style={{ width: '6%' }} title="Contingency: ₹30,000 (6%)" />
+                <div className="h-full cat-invitations-bar" style={{ width: '3%' }} title="Invitations: ₹15,000 (3%)" />
               </div>
               <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
-                <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">Catering ₹2.40L (48%)</span>
-                <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-400 font-medium">Venue ₹80K (16%)</span>
-                <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-medium">Decor ₹60K (12%)</span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium">Photo ₹45K (9%)</span>
-                <span className="px-2 py-0.5 rounded bg-slate-500/15 text-slate-400 font-medium">Contingency ₹30K (6%)</span>
+                <span className="px-2.5 py-0.5 rounded-md cat-catering-bg cat-catering-text border border-[#D4AF37]/20 font-medium">Catering ₹2.40L (48%)</span>
+                <span className="px-2.5 py-0.5 rounded-md cat-venue-bg cat-venue-text border border-[#C272C8]/20 font-medium">Venue ₹80K (16%)</span>
+                <span className="px-2.5 py-0.5 rounded-md cat-decor-bg cat-decor-text border border-[#D48D9F]/20 font-medium">Decor ₹60K (12%)</span>
+                <span className="px-2.5 py-0.5 rounded-md cat-photo-bg cat-photo-text border border-[#69B88E]/20 font-medium">Photo ₹45K (9%)</span>
+                <span className="px-2.5 py-0.5 rounded-md cat-contingency-bg cat-contingency-text border border-[#AFA2B3]/20 font-medium">Contingency ₹30K (6%)</span>
               </div>
             </div>
           </div>
@@ -325,16 +325,16 @@ export default function DashboardPage() {
   // 2. ACTIVE CELEBRATION WORKSPACE (When events exist and viewMode === 'workspace')
   // ═══════════════════════════════════════════════════════════════════════════
   const categoryColors: Record<string, { bg: string; text: string; bar: string }> = {
-    catering: { bg: 'bg-amber-500/15', text: 'text-amber-400', bar: 'bg-amber-500' },
-    venue: { bg: 'bg-purple-500/15', text: 'text-purple-400', bar: 'bg-purple-500' },
-    decoration: { bg: 'bg-rose-500/15', text: 'text-rose-400', bar: 'bg-rose-500' },
-    photography: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', bar: 'bg-emerald-500' },
-    entertainment: { bg: 'bg-indigo-500/15', text: 'text-indigo-400', bar: 'bg-indigo-500' },
-    contingency: { bg: 'bg-slate-500/15', text: 'text-slate-400', bar: 'bg-slate-500' },
-    invitations: { bg: 'bg-orange-500/15', text: 'text-orange-400', bar: 'bg-orange-500' },
-    transportation: { bg: 'bg-cyan-500/15', text: 'text-cyan-400', bar: 'bg-cyan-500' },
-    attire: { bg: 'bg-pink-500/15', text: 'text-pink-400', bar: 'bg-pink-500' },
-    other: { bg: 'bg-gray-500/15', text: 'text-gray-400', bar: 'bg-gray-500' },
+    catering: { bg: 'cat-catering-bg', text: 'cat-catering-text', bar: 'cat-catering-bar' },
+    venue: { bg: 'cat-venue-bg', text: 'cat-venue-text', bar: 'cat-venue-bar' },
+    decoration: { bg: 'cat-decor-bg', text: 'cat-decor-text', bar: 'cat-decor-bar' },
+    photography: { bg: 'cat-photo-bg', text: 'cat-photo-text', bar: 'cat-photo-bar' },
+    entertainment: { bg: 'cat-entertainment-bg', text: 'cat-entertainment-text', bar: 'cat-entertainment-bar' },
+    contingency: { bg: 'cat-contingency-bg', text: 'cat-contingency-text', bar: 'cat-contingency-bar' },
+    invitations: { bg: 'cat-invitations-bg', text: 'cat-invitations-text', bar: 'cat-invitations-bar' },
+    transportation: { bg: 'cat-transport-bg', text: 'cat-transport-text', bar: 'cat-transport-bar' },
+    attire: { bg: 'cat-attire-bg', text: 'cat-attire-text', bar: 'cat-attire-bar' },
+    other: { bg: 'cat-other-bg', text: 'cat-other-text', bar: 'cat-other-bar' },
   };
 
   const totalPaise = budgetSummary ? budgetSummary.projectedTotalPaise : 1;
@@ -415,6 +415,8 @@ export default function DashboardPage() {
         <>
           {/* Luxury Event Header Banner */}
           <div className="celebration-card p-6 sm:p-7 bg-gradient-to-r from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-[var(--primary)]/15 blur-3xl pointer-events-none animate-ambient" />
+            <div className="absolute bottom-0 left-1/3 -mb-20 w-64 h-64 rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none animate-ambient" style={{ animationDelay: '-3s' }} />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2.5">
                 <div className="flex flex-wrap items-center gap-2">
@@ -650,7 +652,7 @@ export default function DashboardPage() {
                                 <span className="text-[var(--danger)] font-bold">● Critical</span>
                               )}
                               {task.priority === 'high' && (
-                                <span className="text-amber-400 font-semibold">● High</span>
+                                <span className="text-[var(--warning)] font-semibold">● High</span>
                               )}
                             </p>
                           </div>
