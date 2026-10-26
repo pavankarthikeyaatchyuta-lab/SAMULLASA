@@ -15,9 +15,8 @@ export default function DashboardPage() {
   );
 
   // View toggle: Landing Page vs Active Workspace
-  const [viewMode, setViewMode] = useState<'workspace' | 'landing'>(
-    state.events.length === 0 ? 'landing' : 'workspace'
-  );
+  // Default to 'landing' so EVERY user visiting https://samullasa.vercel.app/ sees the luxury landing page
+  const [viewMode, setViewMode] = useState<'workspace' | 'landing'>('landing');
 
   // Quick Sandbox What-If state (200 Baseline vs 280 Stress Test)
   const [simGuests, setSimGuests] = useState<number>(200);
@@ -56,39 +55,35 @@ export default function DashboardPage() {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 1. LANDING PAGE VIEW (Default for new visitors or when toggled)
+  // 1. LANDING PAGE VIEW (Default for all visitors on https://samullasa.vercel.app/)
   // ═══════════════════════════════════════════════════════════════════════════
-  if (state.events.length === 0 || viewMode === 'landing') {
+  if (viewMode === 'landing') {
     return (
-      <div className="space-y-16 py-4 max-w-6xl mx-auto">
-        {/* Landing Navigation Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
-          <div className="flex items-center gap-3">
-            <SamullasaLogo size={40} showText={true} />
-          </div>
-
-          <div className="flex items-center gap-3">
-            {state.events.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setViewMode('workspace')}
-                className="font-semibold"
-              >
-                ← Return to Celebration Workspace
-              </Button>
-            )}
-
+      <div className="space-y-16 py-6 max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Active Celebration Notification Banner if an event exists */}
+        {state.events.length > 0 && activeEvent && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-[var(--surface-secondary)] via-[var(--surface)] to-[var(--surface-secondary)] border border-[var(--accent)]/30 shadow-md">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl" role="img" aria-label="Celebration">🪷</span>
+              <div>
+                <p className="text-sm font-bold text-[var(--foreground)]">
+                  Active Celebration: {activeEvent.name}
+                </p>
+                <p className="text-xs text-[var(--muted)]">
+                  {activeScenario?.guestCount} Guests • {formatPaise(budgetSummary?.projectedTotalPaise || 50000000)} Projected Budget
+                </p>
+              </div>
+            </div>
             <Button
-              onClick={handleLoadSample}
+              onClick={() => setViewMode('workspace')}
               variant="primary"
               size="sm"
-              className="font-bold shadow-md shadow-[var(--primary)]/20"
+              className="font-bold shadow-xs whitespace-nowrap"
             >
-              Try Birthday Demo (₹5L)
+              Enter Celebration Studio →
             </Button>
           </div>
-        </header>
+        )}
 
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] p-8 sm:p-14 shadow-2xl">
@@ -144,7 +139,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Live Product Preview Card */}
-        <section className="space-y-4">
+        <section id="demo-preview" className="space-y-4">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h2 className="text-2xl font-bold text-[var(--foreground)]">Interactive Studio Preview</h2>
             <p className="text-sm text-[var(--muted)]">Real-time visibility into budgets, constraints, and preparation deadlines</p>
@@ -155,22 +150,36 @@ export default function DashboardPage() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant="accent">MILESTONE BIRTHDAY</Badge>
-                  <span className="text-xs text-[var(--muted)]">Scenario v1 • Approved</span>
+                  <span className="text-xs text-[var(--muted)]">Scenario v{activeScenario?.version || 1} • Approved</span>
                   <Badge variant="success">✓ Pre-validated Plan</Badge>
                 </div>
-                <h3 className="text-xl font-bold text-[var(--foreground)]">Ananya&apos;s Grand Birthday Celebration</h3>
-                <p className="text-xs text-[var(--muted)]">📍 Chennai, Tamil Nadu • 200 Guests • ₹5,00,000 Budget Ceiling</p>
+                <h3 className="text-xl font-bold text-[var(--foreground)]">
+                  {activeEvent?.name || "Ananya's Grand Birthday Celebration"}
+                </h3>
+                <p className="text-xs text-[var(--muted)]">
+                  📍 {activeEvent?.location || "Chennai, Tamil Nadu"} • <span className="font-bold text-[var(--foreground)]">{activeScenario?.guestCount ?? 200}</span> Guests • <span className="font-bold text-[var(--accent)]">{formatPaise(budgetSummary?.projectedTotalPaise || 50000000)}</span> Projected Budget
+                </p>
               </div>
 
-              <Button onClick={handleLoadSample} variant="primary" size="sm" className="font-bold">
-                Launch Live Demo →
+              <Button
+                onClick={() => {
+                  if (!activeEvent) handleLoadSample();
+                  else setViewMode('workspace');
+                }}
+                variant="primary"
+                size="sm"
+                className="font-bold shadow-md shadow-[var(--primary)]/20"
+              >
+                {activeEvent ? "Enter Celebration Studio →" : "Launch Live Demo →"}
               </Button>
             </div>
 
             {/* Visual Budget Stacked Bar */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-semibold">
-                <span className="text-[var(--foreground)]">Celebration Budget Allocation (₹5,00,000)</span>
+                <span className="text-[var(--foreground)]">
+                  Celebration Budget Allocation ({formatPaise(budgetSummary?.projectedTotalPaise || 50000000)})
+                </span>
                 <span className="text-[var(--success)]">100% Allocated • ₹0 Drift</span>
               </div>
               <div className="w-full h-3.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden flex shadow-inner">
@@ -194,7 +203,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Three Core Celebration Archetypes */}
-        <section className="space-y-6">
+        <section id="archetypes" className="space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h2 className="text-2xl font-bold text-[var(--foreground)]">Celebration Archetypes</h2>
             <p className="text-sm text-[var(--muted)]">Custom workflows, task templates, and budget line items for every occasion</p>
@@ -227,8 +236,95 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* Interactive What-If Guest Surge Simulator */}
+        <section id="surge-simulator" className="celebration-card p-6 sm:p-8 space-y-6 border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/50 to-[var(--surface)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[var(--accent-light)] text-[var(--accent)] mb-2">
+                <span>⚡</span> Real-Time Constraint Engine
+              </div>
+              <h2 className="text-2xl font-bold text-[var(--foreground)]">Live Guest Surge Stress Test</h2>
+              <p className="text-xs text-[var(--muted)]">See how mathematical DAG propagation instantly catches venue limits and budget variance</p>
+            </div>
+
+            <div className="flex items-center gap-2 bg-[var(--surface)] p-1.5 rounded-lg border border-[var(--border)]">
+              <button
+                type="button"
+                onClick={() => setSimGuests(200)}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                  simGuests === 200
+                    ? 'bg-[var(--accent)] text-[var(--accent-foreground)] shadow-xs'
+                    : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                }`}
+              >
+                200 Baseline Guests
+              </button>
+              <button
+                type="button"
+                onClick={() => setSimGuests(280)}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                  simGuests === 280
+                    ? 'bg-[var(--primary)] text-white shadow-xs'
+                    : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                }`}
+              >
+                280 Surge Guests (+40%)
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-1">
+              <p className="text-[11px] font-semibold uppercase text-[var(--muted)]">Simulated Guests</p>
+              <p className="text-2xl font-black text-[var(--foreground)]">{simGuests} Guests</p>
+              <p className="text-[11px] text-[var(--muted)]">Per-person rate: ₹1,200.00/head</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-1">
+              <p className="text-[11px] font-semibold uppercase text-[var(--muted)]">Catering Cost</p>
+              <p className="text-2xl font-black text-[var(--accent)]">{formatPaise(simGuests * 120000)}</p>
+              <p className="text-[11px] text-[var(--muted)]">{simGuests === 200 ? '48% of total budget' : '+₹96K surge increase'}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-1">
+              <p className="text-[11px] font-semibold uppercase text-[var(--muted)]">Projected Total</p>
+              <p className={`text-2xl font-black ${simGuests > 200 ? 'text-[var(--danger)]' : 'text-[var(--foreground)]'}`}>
+                {formatPaise(50000000 - (200 * 120000) + (simGuests * 120000))}
+              </p>
+              <p className="text-[11px] text-[var(--muted)]">Ceiling: ₹5,00,000.00</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] space-y-1">
+              <p className="text-[11px] font-semibold uppercase text-[var(--muted)]">Constraint Status</p>
+              <div className="pt-0.5">
+                {simGuests <= 200 ? (
+                  <Badge variant="success">✓ 100% Feasible</Badge>
+                ) : (
+                  <Badge variant="danger">⚠ Hard Violations</Badge>
+                )}
+              </div>
+              <p className="text-[11px] text-[var(--muted)]">
+                {simGuests <= 200 ? 'Within venue capacity (250)' : 'Exceeds ₹5L ceiling & venue max'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--muted)]">
+            <p>
+              {simGuests === 200
+                ? '💡 The baseline plan operates with ₹0 integer paise drift and satisfies all date-aware vendor constraints.'
+                : '🚨 The 280 guest surge violates the budget ceiling by ₹96,000 and exceeds the Grand Ballroom capacity of 250.'}
+            </p>
+            <Link href="/scenarios">
+              <Button size="sm" variant="secondary" className="font-bold text-xs whitespace-nowrap">
+                Resolve in Adaptive Engine ⚡
+              </Button>
+            </Link>
+          </div>
+        </section>
+
         {/* Five Architectural Pillars */}
-        <section className="space-y-6">
+        <section id="math-engine" className="space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h2 className="text-2xl font-bold text-[var(--foreground)]">The Architectural Core</h2>
             <p className="text-sm text-[var(--muted)]">Why Samullāsa is fundamentally different from generic checklists and chatbots</p>
@@ -282,6 +378,20 @@ export default function DashboardPage() {
                 Celebration data is stored safely in client-side storage with immutable version history and instant deterministic rollback.
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Royal Celebration Heritage Banner */}
+        <section className="celebration-card p-8 sm:p-10 text-center space-y-4 border border-[var(--accent)]/30 bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/70 to-[var(--surface)] relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-60 h-60 rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none animate-ambient" />
+          <div className="max-w-2xl mx-auto space-y-3 relative z-10">
+            <span className="text-3xl" role="img" aria-label="Lotus">🪷</span>
+            <blockquote className="text-base sm:text-lg font-medium text-[var(--foreground)] italic leading-relaxed">
+              &ldquo;In timeless tradition, a celebration is an emotional mandala where hospitality, culture, and precision harmonize. Samullāsa ensures mathematical peace of mind so you can celebrate with unburdened joy.&rdquo;
+            </blockquote>
+            <p className="text-xs uppercase font-bold tracking-widest text-[var(--accent)]">
+              समुल्लासः • Celebration Intelligence Studio
+            </p>
           </div>
         </section>
 
@@ -362,31 +472,34 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner / Event Selector */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[var(--border)]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-[var(--surface)] border border-[var(--border)] shadow-md">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)] tracking-tight">
-            Celebration Workspace
-          </h1>
-          <p className="text-sm text-[var(--muted)]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+            <h1 className="text-xl font-black text-[var(--foreground)] tracking-tight">
+              Celebration Workspace
+            </h1>
+          </div>
+          <p className="text-xs text-[var(--muted)]">
             Samullāsa Celebration Studio • Multi-Scenario Event Intelligence
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             size="sm"
-            variant="ghost"
+            variant="outline"
             onClick={() => setViewMode('landing')}
-            className="text-xs text-[var(--accent)] font-semibold"
+            className="text-xs font-semibold hover:border-[var(--accent)]"
           >
-            🌐 Landing Page
+            🌐 Back to Landing Page
           </Button>
 
           {state.events.length > 1 && (
             <select
               value={activeEvent?.id}
               onChange={(e) => setSelectedEventId(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--surface)] text-[var(--foreground)] font-medium shadow-xs"
+              className="px-3 py-1.5 text-sm border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--surface-secondary)] text-[var(--foreground)] font-medium shadow-xs"
               aria-label="Select active event"
             >
               {state.events.map((ev) => (
@@ -397,14 +510,26 @@ export default function DashboardPage() {
             </select>
           )}
 
-          <Link href="/events/new">
-            <Button size="sm" variant="outline">
-              + New Event
+          <Link href="/budget">
+            <Button size="sm" variant="outline" className="text-xs">
+              💰 Budget
+            </Button>
+          </Link>
+
+          <Link href="/timeline">
+            <Button size="sm" variant="outline" className="text-xs">
+              📅 Timeline
+            </Button>
+          </Link>
+
+          <Link href="/vendors">
+            <Button size="sm" variant="outline" className="text-xs">
+              🤝 Vendors
             </Button>
           </Link>
 
           <Link href="/scenarios">
-            <Button size="sm" variant="secondary" className="shadow-xs font-semibold">
+            <Button size="sm" variant="secondary" className="shadow-xs font-bold text-xs">
               ⚡ Adaptive Engine
             </Button>
           </Link>

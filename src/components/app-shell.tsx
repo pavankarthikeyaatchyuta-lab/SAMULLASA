@@ -9,8 +9,8 @@ import { SamullasaLogo } from '@/components/logo';
 const NAV_ITEMS = [
   {
     href: '/',
-    label: 'Dashboard',
-    badge: 'Overview',
+    label: 'Home & Landing',
+    badge: 'Public',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -78,6 +78,55 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const activeEventName = activeEvent?.name || '';
   const activeEventType = activeEvent?.type || '';
 
+  // Dedicated full-bleed luxury layout for root landing page
+  if (pathname === '/') {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex flex-col selection:bg-[var(--accent)] selection:text-[var(--accent-foreground)]">
+        {/* Accessibility Skip link */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+
+        {/* Ultra-Luxury Sticky Navigation Bar */}
+        <header className="sticky top-0 z-50 bg-[var(--background)]/90 backdrop-blur-md border-b border-[var(--border)] px-4 sm:px-6 lg:px-8 py-3.5 transition-colors">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            {/* Royal Vector Logo */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <SamullasaLogo size={40} showText={true} />
+            </Link>
+
+            {/* Luxury Navigation Links */}
+            <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[var(--muted)]">
+              <a href="#demo-preview" className="hover:text-[var(--accent)] transition-colors">Interactive Demo</a>
+              <a href="#archetypes" className="hover:text-[var(--accent)] transition-colors">Celebration Types</a>
+              <a href="#math-engine" className="hover:text-[var(--accent)] transition-colors">Paise Precision</a>
+              <a href="#surge-simulator" className="hover:text-[var(--accent)] transition-colors">Stress Simulator</a>
+            </nav>
+
+            {/* Action CTAs */}
+            <div className="flex items-center gap-3">
+              <Link href="/events">
+                <button className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] text-xs font-semibold bg-[var(--surface-secondary)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] transition-all">
+                  Celebration Studio
+                </button>
+              </Link>
+              <Link href="/scenarios">
+                <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] text-xs font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-white hover:opacity-95 transition-all shadow-md shadow-[var(--primary)]/25 active:translate-y-px">
+                  <span>⚡ Adaptive AI</span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Full-width Landing Page Content */}
+        <main id="main-content" className="flex-1 w-full" tabIndex={-1}>
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
       {/* Accessibility Skip link */}
@@ -113,7 +162,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-light)] border border-[var(--accent)]/25 text-[var(--foreground)] font-semibold shadow-2xs">
                   <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
                   <span className="truncate max-w-xs">{activeEventName}</span>
-                  <span className="text-[10px] uppercase font-bold text-[var(--accent)] px-1.5 py-0.2 rounded bg-white/70">
+                  <span className="text-[10px] uppercase font-bold text-[var(--accent)] px-1.5 py-0.2 rounded bg-[var(--surface-secondary)] border border-[var(--accent)]/30">
                     {activeEventType}
                   </span>
                 </div>
