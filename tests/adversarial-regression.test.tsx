@@ -409,7 +409,7 @@ describe('SAMULLĀSA — Adversarial Regression & Verification Test Suite', () =
       </StoreProvider>,
     );
 
-    const loadBtn = screen.getByRole('button', { name: /Load Benchmark Wedding/i });
+    const loadBtn = screen.getByRole('button', { name: /Load Benchmark (Wedding|Birthday)/i });
     fireEvent.click(loadBtn);
 
     const simulateBtn = screen.getByRole('button', { name: /Simulate & Detect Impact/i });

@@ -727,7 +727,7 @@ export function parseNaturalLanguageChange(input: string): ChangeProposal {
 
   // ── Guest count patterns ────────────────────────────────────────────────
   const guestPatterns = [
-    /(?:set|change|update|increase|reduce|decrease|adjust)\s+(?:the\s+)?guest\s*(?:count|number|list)?\s+(?:to|=)\s*(\d+)/i,
+    /(?:set|change|update|increase|reduce|decrease|adjust)\s+(?:the\s+)?(?:wedding\s+|birthday\s+|event\s+)?guest\s*(?:count|number|list)?\s+(?:to|=)\s*(\d+)/i,
     /(\d+)\s+guests?/i,
     /guest\s*(?:count|number)\s*(?:to|=|:)\s*(\d+)/i,
   ];

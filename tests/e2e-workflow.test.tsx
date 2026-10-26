@@ -24,10 +24,10 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
       </StoreProvider>
     );
 
-    const loadBtn = screen.getByRole('button', { name: /Load Sample Wedding/i });
+    const loadBtn = screen.getByRole('button', { name: /Load Sample (Wedding|Birthday)/i });
     fireEvent.click(loadBtn);
 
-    expect(screen.getByText("Ananya & Vikram's Wedding")).toBeInTheDocument();
+    expect(screen.getByText("Ananya's Grand Birthday Celebration")).toBeInTheDocument();
     expect(screen.getAllByText('₹5,00,000.00').length).toBeGreaterThan(0); // Budget ceiling & projected
     unmount();
 
@@ -40,7 +40,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
 
     expect(screen.getByText(/Budget Studio/i)).toBeInTheDocument();
     expect(screen.getByText(/South Indian Feast|Catering \(Full Service\)/i)).toBeInTheDocument();
-    expect(screen.getByText('Venue Rental')).toBeInTheDocument();
+    expect(screen.getByText(/Venue Rental/i)).toBeInTheDocument();
 
     // Add a custom budget line item via the UI modal
     const addBtn = screen.getByRole('button', { name: /\+ Add Budget Item/i });
@@ -66,7 +66,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
         <DashboardPage />
       </StoreProvider>
     );
-    fireEvent.click(screen.getByRole('button', { name: /Load Sample Wedding/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Load Sample (Wedding|Birthday)/i }));
     unmountDash();
 
     // Open Timeline
@@ -93,7 +93,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
     );
 
     expect(screen.getByText(/Vendor Workspace/i)).toBeInTheDocument();
-    expect(screen.getByText(/Sri Lakshmi Catering/i)).toBeInTheDocument();
+    expect(screen.getByText(/Royal Feast Catering|Sri Lakshmi Catering/i)).toBeInTheDocument();
     expect(screen.getByText(/Pixel Perfect Studios/i)).toBeInTheDocument();
     unmountVendors();
   });
@@ -105,7 +105,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
         <DashboardPage />
       </StoreProvider>
     );
-    fireEvent.click(screen.getByRole('button', { name: /Load Sample Wedding/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Load Sample (Wedding|Birthday)/i }));
     unmountDash();
 
     // Mount Scenarios Page
@@ -171,7 +171,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
     );
 
     // Verified persisted state after reload: Version with 280 guests active!
-    expect(screen.getByText("Ananya & Vikram's Wedding")).toBeInTheDocument();
+    expect(screen.getByText("Ananya's Grand Birthday Celebration")).toBeInTheDocument();
     expect(screen.getByText('280')).toBeInTheDocument();
     expect(screen.getAllByText('₹5,96,000.00').length).toBeGreaterThanOrEqual(1);
     unmountReload();
@@ -184,7 +184,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
         <DashboardPage />
       </StoreProvider>
     );
-    fireEvent.click(screen.getByRole('button', { name: /Load Sample Wedding/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Load Sample (Wedding|Birthday)/i }));
     unmount();
 
     // Open Events List
@@ -195,7 +195,7 @@ describe('UI End-to-End Workflow Verification (Simulated DOM with React Testing 
     );
 
     expect(screen.getByText(/Your Celebrations/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/WEDDING/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/BIRTHDAY/i).length).toBeGreaterThan(0);
     unmountEvents();
   });
 });

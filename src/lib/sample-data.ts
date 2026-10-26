@@ -19,7 +19,6 @@ function deterministicUUID(seed: string): string {
     hash = ((hash << 5) - hash + char) | 0;
   }
   const hex = Math.abs(hash).toString(16).padStart(8, '0');
-  // Build a UUID-shaped string from the seed hash
   const base = hex.repeat(4).slice(0, 32);
   return [
     base.slice(0, 8),
@@ -46,7 +45,7 @@ function toISODate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
-// ─── Generate Sample Data ────────────────────────────────────────────────────
+// ─── Generate Sample Data (Birthday Celebration Benchmark Demo) ─────────────
 
 export function generateSampleData(): {
   events: EventDetails[];
@@ -57,8 +56,8 @@ export function generateSampleData(): {
   const createdAt = toISO(now);
 
   // Deterministic IDs
-  const eventId = deterministicUUID('wedding-event-ananya-vikram');
-  const scenarioId = deterministicUUID('wedding-scenario-initial');
+  const eventId = deterministicUUID('birthday-event-ananya');
+  const scenarioId = deterministicUUID('birthday-scenario-initial');
 
   // Budget item IDs
   const venueItemId = deterministicUUID('budget-venue-rental');
@@ -82,7 +81,7 @@ export function generateSampleData(): {
   const taskRehearsalId = deterministicUUID('task-final-rehearsal');
 
   // Vendor IDs
-  const vendorCateringId = deterministicUUID('vendor-sri-lakshmi-catering');
+  const vendorCateringId = deterministicUUID('vendor-royal-feast-catering');
   const vendorPhotographyId = deterministicUUID('vendor-pixel-perfect');
   const vendorDecorationId = deterministicUUID('vendor-bloom-petal');
 
@@ -92,8 +91,8 @@ export function generateSampleData(): {
     {
       id: venueItemId,
       category: 'venue',
-      name: 'Venue Rental',
-      description: 'Wedding hall rental for ceremony and reception with wheelchair accessible venue facilities and step-free access',
+      name: 'Banquet & Lawn Venue Rental',
+      description: 'Banquet hall and terrace lawn rental with wheelchair accessible venue facilities and step-free access',
       amountPaise: 8000000, // ₹80,000
       costType: 'fixed',
       status: 'estimated',
@@ -107,7 +106,7 @@ export function generateSampleData(): {
       id: cateringItemId,
       category: 'catering',
       name: 'Catering (Full Service)',
-      description: 'Traditional South Indian vegetarian menu with vegan options',
+      description: 'Multi-cuisine celebratory dinner menu with vegan options and live counters',
       amountPaise: 24000000, // ₹2,40,000 (₹1,200/person × 200 guests)
       costType: 'per_person',
       unitCount: 200,
@@ -124,7 +123,7 @@ export function generateSampleData(): {
       id: decorationItemId,
       category: 'decoration',
       name: 'Decoration & Floral Arrangements',
-      description: 'Traditional South Indian wedding decoration with flowers and lights',
+      description: 'Themed floral installations, entrance balloon arch, and ambient lighting',
       amountPaise: 6000000, // ₹60,000
       costType: 'fixed',
       status: 'estimated',
@@ -139,7 +138,7 @@ export function generateSampleData(): {
       id: photographyItemId,
       category: 'photography',
       name: 'Photography & Videography',
-      description: 'Professional photography and videography coverage',
+      description: 'Professional candid photography, videography, and instant guest photobooth',
       amountPaise: 4500000, // ₹45,000
       costType: 'fixed',
       status: 'quoted',
@@ -154,7 +153,7 @@ export function generateSampleData(): {
       id: entertainmentItemId,
       category: 'entertainment',
       name: 'Entertainment & Music',
-      description: 'Live nadaswaram and mridangam for ceremony, DJ for reception',
+      description: 'Live acoustic band for dinner and DJ for celebration dance floor',
       amountPaise: 3000000, // ₹30,000
       costType: 'fixed',
       status: 'estimated',
@@ -167,8 +166,8 @@ export function generateSampleData(): {
     {
       id: invitationsItemId,
       category: 'invitations',
-      name: 'Wedding Invitations',
-      description: 'Printed and digital wedding invitations',
+      name: 'Birthday Invitations',
+      description: 'Personalized animated digital invitations and customized keepsake favors',
       amountPaise: 1500000, // ₹15,000
       costType: 'fixed',
       status: 'estimated',
@@ -188,19 +187,19 @@ export function generateSampleData(): {
       status: 'estimated',
       depositPaise: 0,
       isGenerated: false,
-      sourceNote: 'Sample estimate',
+      sourceNote: 'Recommended 6% safety buffer',
       createdAt,
       updatedAt: createdAt,
     },
   ];
 
-  // ─── Tasks ─────────────────────────────────────────────────────────────────
+  // ─── Preparation Tasks ─────────────────────────────────────────────────────
 
   const tasks: Task[] = [
     {
       id: taskBookVenueId,
       title: 'Book venue',
-      description: 'Finalize and book the wedding venue',
+      description: 'Finalize and book the celebration banquet venue',
       dueDate: toISODate(addDays(eventDate, -90)),
       priority: 'critical',
       status: 'pending',
@@ -212,7 +211,7 @@ export function generateSampleData(): {
     {
       id: taskGuestListId,
       title: 'Finalize guest list',
-      description: 'Compile and confirm the complete guest list with both families',
+      description: 'Confirm attendance and finalize the 200-guest invitation list',
       dueDate: toISODate(addDays(eventDate, -75)),
       priority: 'high',
       status: 'pending',
@@ -223,7 +222,7 @@ export function generateSampleData(): {
     {
       id: taskBookCatererId,
       title: 'Book caterer',
-      description: 'Finalize catering contract with menu selection',
+      description: 'Finalize catering contract with custom menu and cake design',
       dueDate: toISODate(addDays(eventDate, -60)),
       priority: 'critical',
       status: 'pending',
@@ -236,7 +235,7 @@ export function generateSampleData(): {
     {
       id: taskBookPhotographerId,
       title: 'Book photographer',
-      description: 'Confirm photography and videography package',
+      description: 'Confirm candid photography and photobooth coverage',
       dueDate: toISODate(addDays(eventDate, -60)),
       priority: 'high',
       status: 'pending',
@@ -249,7 +248,7 @@ export function generateSampleData(): {
     {
       id: taskSendInvitationsId,
       title: 'Send invitations',
-      description: 'Print and distribute wedding invitations to all guests',
+      description: 'Distribute personalized animated invitations to all guests',
       dueDate: toISODate(addDays(eventDate, -42)),
       priority: 'high',
       status: 'pending',
@@ -261,11 +260,11 @@ export function generateSampleData(): {
     {
       id: taskDecorationsId,
       title: 'Arrange decorations',
-      description: 'Finalize decoration plan and floral arrangements',
+      description: 'Review and approve balloon installations and theme stage setup',
       dueDate: toISODate(addDays(eventDate, -30)),
       priority: 'medium',
       status: 'pending',
-      dependencies: [taskBookVenueId],
+      dependencies: [],
       category: 'decoration',
       vendorId: vendorDecorationId,
       createdAt,
@@ -273,8 +272,8 @@ export function generateSampleData(): {
     },
     {
       id: taskMenuTastingId,
-      title: 'Final menu tasting',
-      description: 'Attend final menu tasting session with caterer',
+      title: 'Menu tasting',
+      description: 'Sample dinner menu items and artisan birthday cake flavors',
       dueDate: toISODate(addDays(eventDate, -21)),
       priority: 'medium',
       status: 'pending',
@@ -287,50 +286,33 @@ export function generateSampleData(): {
     {
       id: taskConfirmVendorsId,
       title: 'Confirm all vendors',
-      description: 'Final confirmation with all booked vendors',
+      description: 'Reconfirm delivery schedules and staff rosters with all vendors',
       dueDate: toISODate(addDays(eventDate, -14)),
-      priority: 'critical',
+      priority: 'high',
       status: 'pending',
-      dependencies: [
-        taskBookVenueId,
-        taskBookCatererId,
-        taskBookPhotographerId,
-      ],
+      dependencies: [taskBookCatererId, taskBookPhotographerId, taskDecorationsId],
       createdAt,
       updatedAt: createdAt,
     },
     {
       id: taskTransportId,
-      title: 'Arrange transport',
-      description: 'Organize transportation for family and VIP guests',
-      dueDate: toISODate(addDays(eventDate, -14)),
-      priority: 'medium',
+      title: 'Arrange guest transport',
+      description: 'Coordinate parking access and valet logistics for guests',
+      dueDate: toISODate(addDays(eventDate, -7)),
+      priority: 'low',
       status: 'pending',
       dependencies: [],
-      category: 'transport',
-      createdAt,
-      updatedAt: createdAt,
-    },
-    {
-      id: deterministicUUID('task-accessibility-services'),
-      title: 'Confirm sign language interpreter and wheelchair access ramps',
-      description: 'Arrange certified sign language interpreter and verify wheelchair accessible venue ramps',
-      dueDate: toISODate(addDays(eventDate, -14)),
-      priority: 'high',
-      status: 'pending',
-      dependencies: [taskBookVenueId],
       createdAt,
       updatedAt: createdAt,
     },
     {
       id: taskRehearsalId,
-      title: 'Final rehearsal',
-      description: 'Complete walkthrough at the venue with key participants',
-      dueDate: toISODate(addDays(eventDate, -3)),
-      priority: 'high',
+      title: 'Final soundcheck & walkthrough',
+      description: 'Audio soundcheck with live band, lighting test, and stage dry-run',
+      dueDate: toISODate(addDays(eventDate, -1)),
+      priority: 'medium',
       status: 'pending',
-      dependencies: [taskBookVenueId, taskDecorationsId],
-      category: 'venue',
+      dependencies: [taskConfirmVendorsId],
       createdAt,
       updatedAt: createdAt,
     },
@@ -341,19 +323,19 @@ export function generateSampleData(): {
   const vendors: Vendor[] = [
     {
       id: vendorCateringId,
-      name: 'Sri Lakshmi Catering',
+      name: 'Royal Feast Catering & Bakery',
       category: 'catering',
-      contactName: 'Mr. Raghavan',
-      phone: '+91 98765 43210',
+      contactName: 'Mrs. Deepa Sundaram',
+      phone: '+91 98400 12345',
       quotedPricePaise: 24000000, // ₹2,40,000
       inclusions: [
-        'Full South Indian vegetarian menu',
-        'Vegan options',
-        'Service staff',
-        'Utensils and crockery',
+        'Welcome mocktail bar',
+        'Multi-cuisine buffet dinner',
+        'Custom 3-tier celebration cake',
+        'Service staff and tableware',
       ],
-      exclusions: ['Beverages', 'Dessert counter beyond 3 items'],
-      status: 'quoted',
+      exclusions: ['Alcoholic beverages', 'Late-night cleanup fee'],
+      status: 'shortlisted',
       depositPaidPaise: 0,
       balanceDuePaise: 24000000,
       notes: 'Illustrative sample data — not a real vendor quote',
@@ -364,17 +346,17 @@ export function generateSampleData(): {
       id: vendorPhotographyId,
       name: 'Pixel Perfect Studios',
       category: 'photography',
-      contactName: 'Ms. Priya',
-      phone: '+91 98765 12345',
+      contactName: 'Mr. Arvind Raman',
+      phone: '+91 98840 54321',
       quotedPricePaise: 4500000, // ₹45,000
       inclusions: [
-        'Full day coverage',
-        'Edited photos (500+)',
-        'Highlight reel video',
-        'Pre-wedding shoot',
+        'Full celebration coverage (6 hours)',
+        'Candid photography',
+        'Highlight celebration video teaser',
+        'Instant guest photobooth with props',
       ],
-      exclusions: ['Drone footage', 'Same-day edit'],
-      status: 'quoted',
+      exclusions: ['Raw video footage archive', 'Drone cinematography'],
+      status: 'shortlisted',
       depositPaidPaise: 0,
       balanceDuePaise: 4500000,
       notes: 'Illustrative sample data — not a real vendor quote',
@@ -389,12 +371,12 @@ export function generateSampleData(): {
       phone: '+91 98765 67890',
       quotedPricePaise: 6000000, // ₹60,000
       inclusions: [
-        'Stage decoration',
-        'Entrance arch',
-        'Table centerpieces',
-        'Lighting setup',
+        'Main stage themed backdrop',
+        'Entrance balloon & floral arch',
+        'Table floral centerpieces',
+        'Warm ambient fairy lighting',
       ],
-      exclusions: ['Outdoor decoration', 'Sound system'],
+      exclusions: ['Outdoor marquee tent', 'Sound & amplifier system'],
       status: 'shortlisted',
       depositPaidPaise: 0,
       balanceDuePaise: 6000000,
@@ -442,9 +424,9 @@ export function generateSampleData(): {
     id: scenarioId,
     eventId,
     status: 'approved',
-    name: 'Initial Wedding Plan',
+    name: 'Initial Birthday Plan',
     description:
-      'Baseline wedding plan for Ananya & Vikram — all cost figures are illustrative sample data.',
+      'Baseline milestone birthday celebration plan for Ananya — all cost figures are illustrative sample data.',
     guestCount: 200,
     budgetCeilingPaise: 50000000, // ₹5,00,000
     budgetItems,
@@ -466,22 +448,22 @@ export function generateSampleData(): {
 
   const event: EventDetails = {
     id: eventId,
-    name: "Ananya & Vikram's Wedding",
-    type: 'wedding',
+    name: "Ananya's Grand Birthday Celebration",
+    type: 'birthday',
     status: 'planning',
     description:
-      'A traditional South Indian wedding celebration. All budget figures shown are illustrative sample data for demonstration purposes.',
+      'A festive milestone birthday celebration with family, friends, live entertainment, and fine dining.',
     date: toISODate(eventDate),
-    time: '09:00',
+    time: '18:30',
     location: 'Chennai, Tamil Nadu',
     venueCapacity: 300,
     guestCount: 200,
     budgetCeilingPaise: 50000000, // ₹5,00,000
     currency: 'INR',
     preferences: {
-      culturalStyle: 'South Indian',
-      dietaryRequirements: ['Vegetarian', 'Vegan options'],
-      priorityAreas: ['catering', 'photography', 'decoration'],
+      culturalStyle: 'Contemporary & Heritage Fusion',
+      dietaryRequirements: ['Vegetarian', 'Vegan options', 'Dessert counter'],
+      priorityAreas: ['catering', 'photography', 'entertainment'],
     },
     accessibilityRequirements: [
       'Wheelchair accessible venue',

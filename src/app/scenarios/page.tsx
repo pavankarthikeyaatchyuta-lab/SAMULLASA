@@ -26,7 +26,7 @@ export default function ScenariosPage() {
 
   // Adaptive Engine State
   const [naturalLanguageInput, setNaturalLanguageInput] = useState(
-    'Increase the wedding guest count to 280, keep the budget unchanged, preserve accessibility requirements and don\'t reduce catering quality.',
+    'Increase the birthday guest count to 280, keep the budget unchanged, preserve accessibility requirements and don\'t reduce catering quality.',
   );
   const [isSimulating, setIsSimulating] = useState(false);
   const [proposedScenario, setProposedScenario] = useState<Scenario | null>(null);
@@ -38,7 +38,7 @@ export default function ScenariosPage() {
   const PRESET_PROMPTS = [
     {
       label: 'Benchmark Scenario (280 Guests, ₹5L Budget)',
-      text: 'Increase the wedding guest count to 280, keep the budget unchanged, preserve accessibility requirements and don\'t reduce catering quality.',
+      text: 'Increase the birthday guest count to 280, keep the budget unchanged, preserve accessibility requirements and don\'t reduce catering quality.',
     },
     {
       label: 'Budget Cut (Reduce to ₹4,00,000)',
@@ -174,7 +174,7 @@ export default function ScenariosPage() {
         description="Please create or load an event to use the Adaptive Event Intelligence Engine."
         action={
           <Button onClick={() => dispatch({ type: 'LOAD_SAMPLE_DATA' })} variant="primary">
-            Load Benchmark Wedding
+            Load Benchmark Birthday
           </Button>
         }
       />

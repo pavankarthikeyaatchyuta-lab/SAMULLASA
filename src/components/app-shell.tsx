@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStore } from '@/lib/store';
+import { SamullasaLogo } from '@/components/logo';
 
 const NAV_ITEMS = [
   {
@@ -100,12 +101,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
             </button>
 
-            {/* Mobile Logo */}
-            <Link href="/" className="lg:hidden flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center text-white font-bold text-sm shadow-xs">
-                स
-              </div>
-              <span className="text-base font-bold text-[var(--primary)] tracking-tight">SAMULLĀSA</span>
+            {/* Mobile Vector Logo */}
+            <Link href="/" className="lg:hidden flex items-center">
+              <SamullasaLogo size={32} showText={true} />
             </Link>
 
             {/* Desktop Breadcrumb / Active Event */}
@@ -159,23 +157,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         aria-label="Main Navigation"
       >
         <div>
-          {/* Brand Header */}
-          <div className="p-5 border-b border-[var(--border)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-secondary)]/30">
+          {/* Brand Header with Vector Logo */}
+          <div className="p-4 border-b border-[var(--border)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface-secondary)]/30">
             <div className="flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] via-[var(--primary-hover)] to-[var(--accent)] flex items-center justify-center text-white font-extrabold text-lg shadow-sm border border-[var(--accent)]/30 group-hover:scale-105 transition-transform">
-                  स
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-base text-[var(--foreground)] tracking-tight">
-                      SAMULLĀSA
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-medium text-[var(--accent)] block tracking-wide">
-                    Celebration Studio
-                  </span>
-                </div>
+              <Link href="/" className="group">
+                <SamullasaLogo size={40} showText={true} />
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}

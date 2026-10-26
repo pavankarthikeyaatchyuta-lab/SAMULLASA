@@ -14,13 +14,13 @@ import {
 import type { EventDetails, Scenario } from '@/types/events';
 
 describe('Integration & End-to-End Planning Workflows', () => {
-  it('Primary Benchmark Demonstration Workflow: Wedding from 200 to 280 guests', () => {
+  it('Primary Benchmark Demonstration Workflow: Birthday from 200 to 280 guests', () => {
     // 1. Load initial benchmark wedding
     const { events, scenarios } = generateSampleData();
     const wedding = events[0];
     const initialScenario = scenarios[wedding.currentScenarioId];
 
-    expect(wedding.type).toBe('wedding');
+    expect(wedding.type).toBe('birthday');
     expect(wedding.guestCount).toBe(200);
     expect(wedding.budgetCeilingPaise).toBe(50000000); // ₹5,00,000
 
@@ -32,7 +32,7 @@ describe('Integration & End-to-End Planning Workflows', () => {
     expect(initialSummary.isOverBudget).toBe(false);
 
     // 2. Issue user request:
-    // "Increase the wedding guest count to 280, keep the total budget unchanged, preserve accessibility requirements and don't reduce catering quality."
+    // "Increase the birthday guest count to 280, keep the total budget unchanged, preserve accessibility requirements and don't reduce catering quality."
     const prompt =
       "Increase the wedding guest count to 280, keep the total budget unchanged, preserve accessibility requirements and don't reduce catering quality.";
     const proposal = parseNaturalLanguageChange(prompt);

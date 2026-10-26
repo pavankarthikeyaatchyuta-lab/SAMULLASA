@@ -48,7 +48,7 @@ export default function DashboardPage() {
     });
   };
 
-  // If no events loaded yet: Luxury Dark Launchpad with SINGLE Official Benchmark Demo
+  // If no events loaded yet: Luxury Dark Launchpad with SINGLE Official Benchmark Birthday Demo
   if (state.events.length === 0) {
     return (
       <div className="space-y-10 py-4 max-w-5xl mx-auto">
@@ -71,7 +71,7 @@ export default function DashboardPage() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg text-[var(--muted)] leading-relaxed">
-                Adaptive celebration intelligence for weddings, milestone birthdays, and community festivals. Experience deterministic integer-paise calculations, date-aware milestone dependency graphs, and instant constraint recovery.
+                Adaptive celebration intelligence for milestone birthdays, weddings, and community festivals. Experience deterministic integer-paise calculations, date-aware milestone dependency graphs, and instant constraint recovery.
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export default function DashboardPage() {
                 size="lg"
                 className="shadow-lg shadow-[var(--primary)]/30 px-7 py-3.5 font-bold text-base"
               >
-                Load Sample Wedding (₹5L / 200 Guests)
+                Load Sample Birthday (₹5L / 200 Guests)
               </Button>
 
               <Link href="/events/new">
@@ -110,27 +110,27 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-[var(--foreground)]">Official Demonstration Blueprint</h2>
-              <p className="text-xs sm:text-sm text-[var(--muted)]">Complete end-to-end wedding plan with budgets, date-aware tasks, vendor contracts, and constraints</p>
+              <p className="text-xs sm:text-sm text-[var(--muted)]">Complete end-to-end birthday celebration plan with budgets, date-aware tasks, vendor contracts, and constraints</p>
             </div>
-            <Badge variant="accent">SIGNATURE DEMO</Badge>
+            <Badge variant="accent">BIRTHDAY DEMO</Badge>
           </div>
 
           <div className="celebration-card p-6 sm:p-8 border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/50 to-[var(--surface)] space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-[var(--accent-light)] border border-[var(--accent)]/30 flex items-center justify-center text-2xl shadow-inner">
-                  💍
+                  🎂
                 </div>
                 <div>
-                  <h3 className="text-xl font-extrabold text-[var(--foreground)]">Royal South Indian Wedding</h3>
-                  <p className="text-xs text-[var(--muted)]">Ananya & Vikram • Chennai, Tamil Nadu • Traditional Heritage Theme</p>
+                  <h3 className="text-xl font-extrabold text-[var(--foreground)]">Ananya&apos;s Grand Birthday Celebration</h3>
+                  <p className="text-xs text-[var(--muted)]">Milestone 30th Birthday • Chennai, Tamil Nadu • Contemporary & Heritage Fusion</p>
                 </div>
               </div>
               <Badge variant="success">✓ Pre-validated Constraints</Badge>
             </div>
 
             <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Fully configured wedding celebration featuring traditional mandapam venue rental, authentic 32-item Sadya catering feast (₹1,200/person), professional photography, floral decoration, music entertainment, and wheelchair-accessible facilities.
+              Fully configured milestone birthday celebration featuring banquet hall & terrace lawn rental, authentic celebratory dinner feast (₹1,200/guest), professional photography with instant photobooth, theme floral and balloon installations, live entertainment band, and wheelchair-accessible facilities.
             </p>
 
             {/* 4 Feature Pillars of Demo */}
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                 size="md"
                 className="font-bold shadow-md shadow-[var(--primary)]/20"
               >
-                Launch Signature Wedding Demo
+                Launch Signature Birthday Demo
               </Button>
               <span className="text-xs text-[var(--muted)]">Loads all budget line items, tasks, and vendor quotations into your local workspace.</span>
             </div>
@@ -290,7 +290,7 @@ export default function DashboardPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant={activeEvent.type === 'wedding' ? 'accent' : 'info'}>
+                  <Badge variant={activeEvent.type === 'birthday' ? 'accent' : 'info'}>
                     {activeEvent.type.toUpperCase()}
                   </Badge>
                   <span className="text-xs text-[var(--muted)] font-medium">
@@ -559,7 +559,7 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
-                  Stress-test the benchmark wedding requirements: observe real-time dependency propagation across catering and capacity:
+                  Stress-test the benchmark celebration requirements: observe real-time dependency propagation across catering and capacity:
                 </p>
 
                 {/* Guest Count Selector Buttons */}
