@@ -6,6 +6,7 @@ import { useStore } from '@/lib/store';
 import { formatPaise, calculateBudgetSummary, getCategoryLabel } from '@/lib/budget-engine';
 import { Card, Button, Badge, ProgressBar } from '@/components/ui';
 import { SamullasaLogo } from '@/components/logo';
+import { ThemeToggle } from '@/components/theme-toggle';
 import type { TaskStatus } from '@/types/events';
 
 export default function DashboardPage() {
@@ -486,6 +487,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <ThemeToggle />
+
           <Button
             size="sm"
             variant="outline"

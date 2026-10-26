@@ -45,6 +45,47 @@
   --radius-xl: 24px;
 }
 
+/* SAMULLĀSA Design System — Light Mode (Organic Luxury Ivory & Champagne Linen) */
+:root.light,
+html.light,
+[data-theme="light"] {
+  /* Surfaces — Natural Warm Ivory Alabaster */
+  --background: #FAF7F4;          /* Warm soft alabaster ivory */
+  --foreground: #1D1422;          /* Deep imperial charcoal-aubergine */
+  --surface: #FFFFFF;             /* Crisp royal milk silk */
+  --surface-secondary: #F3ECE6;   /* Soft warm champagne linen */
+  --surface-elevated: #FFFFFF;    /* Floating modal & menu panels */
+  --border: #E5DCD3;              /* Delicate antique sand & champagne border */
+  --border-subtle: #ECE4DC;
+  
+  /* Brand colors — Royal Imperial Plum */
+  --primary: #7A2883;             /* Deep regal plum */
+  --primary-hover: #661E6E;
+  --primary-foreground: #FFFFFF;
+  --primary-light: rgba(122, 40, 131, 0.08);
+  --primary-muted: rgba(122, 40, 131, 0.16);
+  
+  /* Accent — Antique Royal Champagne Gold */
+  --accent: #B88E1F;              /* Warm rich gold */
+  --accent-hover: #A17A16;
+  --accent-foreground: #FFFFFF;
+  --accent-light: rgba(184, 142, 31, 0.12);
+  
+  /* Status colors — Natural & Organic (Non-Neon) */
+  --success: #286E4F;             /* Deep jade emerald */
+  --success-bg: rgba(40, 110, 79, 0.10);
+  --warning: #B07C12;             /* Warm antique amber */
+  --warning-bg: rgba(176, 124, 18, 0.10);
+  --danger: #A83B3B;              /* Earthy terracotta crimson */
+  --danger-bg: rgba(168, 59, 59, 0.10);
+  --info: #3E617E;                /* Dusty sapphire slate */
+  --info-bg: rgba(62, 97, 126, 0.10);
+  
+  /* Semantic */
+  --muted: #6B5E70;               /* Crisp legible warm pewter */
+  --muted-foreground: #8C7F92;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -131,6 +172,15 @@ body {
   transform: translateY(-2px);
   border-color: rgba(212, 175, 55, 0.30);
   box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.65), 0 0 20px -2px rgba(212, 175, 55, 0.08);
+}
+
+.light .celebration-card {
+  box-shadow: 0 4px 18px -2px rgba(122, 40, 131, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.light .celebration-card:hover {
+  box-shadow: 0 10px 28px -4px rgba(122, 40, 131, 0.12), 0 0 16px -2px rgba(184, 142, 31, 0.10);
+  border-color: rgba(184, 142, 31, 0.40);
 }
 
 /* Dynamic Ambient Glow Class */
@@ -231,6 +281,26 @@ button:active:not(:disabled) {
 ::-webkit-scrollbar-thumb:hover {
   background: #4E3358;
 }
+
+.light ::-webkit-scrollbar-track {
+  background: #FAF7F4;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #D8CCC0;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #C4B5A6;
+}
+
+.light .cat-catering-text { color: #9A7415; }
+.light .cat-venue-text { color: #7A2883; }
+.light .cat-decor-text { color: #8A3E52; }
+.light .cat-photo-text { color: #286E4F; }
+.light .cat-entertainment-text { color: #3E617E; }
+.light .cat-contingency-text { color: #554B5B; }
+.light .cat-invitations-text { color: #8C4720; }
 
 /* Skip to content link */
 .skip-link {

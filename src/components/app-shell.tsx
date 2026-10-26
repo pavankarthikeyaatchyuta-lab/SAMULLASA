@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStore } from '@/lib/store';
 import { SamullasaLogo } from '@/components/logo';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV_ITEMS = [
   {
@@ -103,8 +104,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <a href="#surge-simulator" className="hover:text-[var(--accent)] transition-colors">Stress Simulator</a>
             </nav>
 
-            {/* Action CTAs */}
+            {/* Action CTAs & Theme Toggle */}
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <Link href="/events">
                 <button className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] text-xs font-semibold bg-[var(--surface-secondary)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] transition-all">
                   Celebration Studio
@@ -172,8 +174,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Right Header Controls: Status Indicator & Adaptive Simulator */}
+          {/* Right Header Controls: Status Indicator & Adaptive Simulator & Theme Toggle */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--surface-secondary)] border border-[var(--border)] text-[var(--foreground)] shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
               <span>Paise Arithmetic • Zero Rounding Error</span>
@@ -262,8 +265,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Sidebar Footer: Celebration Intelligence Seal */}
-        <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-secondary)]/20">
+        {/* Sidebar Footer: Theme Toggle & Celebration Intelligence Seal */}
+        <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-secondary)]/20 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[var(--muted)]">Theme Mode</span>
+            <ThemeToggle showLabels={false} />
+          </div>
+
           <div className="p-3 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

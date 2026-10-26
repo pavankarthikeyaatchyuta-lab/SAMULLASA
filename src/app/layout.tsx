@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { StoreProvider } from '@/lib/store';
+import { ThemeProvider } from '@/components/theme-toggle';
 import AppShell from '@/components/app-shell';
 
 export const metadata: Metadata = {
@@ -14,10 +15,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: 'dark' }}>
-      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
+    <html lang="en" className="dark" data-theme="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('samullasa-theme')||'dark';document.documentElement.className=t;document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased transition-colors duration-200">
         <StoreProvider>
-          <AppShell>{children}</AppShell>
+          <ThemeProvider>
+            <AppShell>{children}</AppShell>
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>
