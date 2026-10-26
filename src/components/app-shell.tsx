@@ -9,9 +9,9 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 const NAV_ITEMS = [
   {
-    href: '/',
-    label: 'Home & Landing',
-    badge: 'Public',
+    href: '/dashboard',
+    label: 'Dashboard',
+    badge: 'Overview',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -107,14 +107,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {/* Action CTAs & Theme Toggle */}
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Link href="/events">
-                <button className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] text-xs font-semibold bg-[var(--surface-secondary)] text-[var(--foreground)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] transition-all">
-                  Celebration Studio
-                </button>
-              </Link>
-              <Link href="/scenarios">
-                <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] text-xs font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-white hover:opacity-95 transition-all shadow-md shadow-[var(--primary)]/25 active:translate-y-px">
-                  <span>⚡ Adaptive AI</span>
+              <Link href="/dashboard">
+                <button className="inline-flex items-center gap-1.5 px-5 py-2 rounded-[var(--radius-md)] text-xs font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-white hover:opacity-95 transition-all shadow-md shadow-[var(--primary)]/25 active:translate-y-px cursor-pointer">
+                  <span>Get Started</span>
+                  <span>→</span>
                 </button>
               </Link>
             </div>
@@ -267,6 +263,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Sidebar Footer: Theme Toggle & Celebration Intelligence Seal */}
         <div className="p-4 border-t border-[var(--border)] bg-[var(--surface-secondary)]/20 space-y-3">
+          <Link
+            href="/"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-[var(--radius-md)] text-xs font-semibold text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--surface)] transition-all border border-dashed border-[var(--border)]"
+          >
+            <span>🌐 View Landing Page</span>
+            <span>↗</span>
+          </Link>
+
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[var(--muted)]">Theme Mode</span>
             <ThemeToggle showLabels={false} />

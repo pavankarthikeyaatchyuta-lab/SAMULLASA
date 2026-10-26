@@ -37,8 +37,10 @@ export default function DashboardPage() {
   const completedTasks = activeScenario?.tasks.filter((t) => t.status === 'completed') || [];
   const bookedVendors = activeScenario?.vendors.filter((v) => v.status === 'booked' || v.status === 'confirmed') || [];
 
-  const handleLoadSample = () => {
-    dispatch({ type: 'LOAD_SAMPLE_DATA' });
+  const handleGetStarted = () => {
+    if (state.events.length === 0) {
+      dispatch({ type: 'LOAD_SAMPLE_DATA' });
+    }
     setViewMode('workspace');
   };
 
@@ -75,14 +77,15 @@ export default function DashboardPage() {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => setViewMode('workspace')}
-              variant="primary"
-              size="sm"
-              className="font-bold shadow-xs whitespace-nowrap"
-            >
-              Enter Celebration Studio →
-            </Button>
+            <Link href="/dashboard" onClick={handleGetStarted}>
+              <Button
+                variant="primary"
+                size="sm"
+                className="font-bold shadow-xs whitespace-nowrap cursor-pointer"
+              >
+                Get Started — Open Dashboard →
+              </Button>
+            </Link>
           </div>
         )}
 
@@ -111,14 +114,15 @@ export default function DashboardPage() {
 
             {/* Direct Action Row */}
             <div className="flex flex-wrap items-center gap-4 pt-4">
-              <Button
-                onClick={handleLoadSample}
-                variant="primary"
-                size="lg"
-                className="shadow-xl shadow-[var(--primary)]/30 px-8 py-4 font-bold text-base"
-              >
-                Load Sample Birthday (₹5L / 200 Guests)
-              </Button>
+              <Link href="/dashboard" onClick={handleGetStarted}>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="shadow-xl shadow-[var(--primary)]/30 px-8 py-4 font-bold text-base cursor-pointer"
+                >
+                  Get Started — Load Sample Birthday (₹5L)
+                </Button>
+              </Link>
 
               <Link href="/events/new">
                 <Button
@@ -162,17 +166,15 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <Button
-                onClick={() => {
-                  if (!activeEvent) handleLoadSample();
-                  else setViewMode('workspace');
-                }}
-                variant="primary"
-                size="sm"
-                className="font-bold shadow-md shadow-[var(--primary)]/20"
-              >
-                {activeEvent ? "Enter Celebration Studio →" : "Launch Live Demo →"}
-              </Button>
+              <Link href="/dashboard" onClick={handleGetStarted}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="font-bold shadow-md shadow-[var(--primary)]/20 cursor-pointer"
+                >
+                  {activeEvent ? "Get Started with this Plan →" : "Get Started — Launch Demo →"}
+                </Button>
+              </Link>
             </div>
 
             {/* Visual Budget Stacked Bar */}
@@ -403,14 +405,15 @@ export default function DashboardPage() {
             Launch the pre-configured milestone birthday celebration with ₹5,00,000 budget, 200 guests, 10 milestones, and 3 vendor quotations.
           </p>
           <div className="pt-2 flex flex-wrap justify-center gap-4">
-            <Button
-              onClick={handleLoadSample}
-              variant="primary"
-              size="lg"
-              className="font-bold shadow-lg shadow-[var(--primary)]/30 px-8"
-            >
-              Launch Signature Birthday Demo
-            </Button>
+            <Link href="/dashboard" onClick={handleGetStarted}>
+              <Button
+                variant="primary"
+                size="lg"
+                className="font-bold shadow-lg shadow-[var(--primary)]/30 px-8 cursor-pointer"
+              >
+                Get Started Now — Launch Birthday Demo
+              </Button>
+            </Link>
             <Link href="/events/new">
               <Button variant="outline" size="lg">
                 Create New Celebration
