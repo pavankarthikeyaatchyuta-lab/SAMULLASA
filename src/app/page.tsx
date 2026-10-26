@@ -5,12 +5,18 @@ import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { formatPaise, calculateBudgetSummary, getCategoryLabel } from '@/lib/budget-engine';
 import { Card, Button, Badge, ProgressBar } from '@/components/ui';
+import { SamullasaLogo } from '@/components/logo';
 import type { TaskStatus } from '@/types/events';
 
 export default function DashboardPage() {
   const { state, dispatch, getCurrentScenario } = useStore();
   const [selectedEventId, setSelectedEventId] = useState<string>(
     state.events[0]?.id || '',
+  );
+
+  // View toggle: Landing Page vs Active Workspace
+  const [viewMode, setViewMode] = useState<'workspace' | 'landing'>(
+    state.events.length === 0 ? 'landing' : 'workspace'
   );
 
   // Quick Sandbox What-If state (200 Baseline vs 280 Stress Test)
@@ -33,6 +39,7 @@ export default function DashboardPage() {
 
   const handleLoadSample = () => {
     dispatch({ type: 'LOAD_SAMPLE_DATA' });
+    setViewMode('workspace');
   };
 
   const handleToggleTask = (taskId: string, currentStatus: TaskStatus) => {
@@ -48,40 +55,71 @@ export default function DashboardPage() {
     });
   };
 
-  // If no events loaded yet: Luxury Dark Launchpad with SINGLE Official Benchmark Birthday Demo
-  if (state.events.length === 0) {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 1. LANDING PAGE VIEW (Default for new visitors or when toggled)
+  // ═══════════════════════════════════════════════════════════════════════════
+  if (state.events.length === 0 || viewMode === 'landing') {
     return (
-      <div className="space-y-10 py-4 max-w-5xl mx-auto">
-        {/* Luxury Hero Banner */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] p-8 sm:p-12 shadow-2xl">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-[var(--primary)]/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[var(--accent)]/10 blur-3xl pointer-events-none" />
+      <div className="space-y-16 py-4 max-w-6xl mx-auto">
+        {/* Landing Navigation Header */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+          <div className="flex items-center gap-3">
+            <SamullasaLogo size={40} showText={true} />
+          </div>
+
+          <div className="flex items-center gap-3">
+            {state.events.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('workspace')}
+                className="font-semibold"
+              >
+                ← Return to Celebration Workspace
+              </Button>
+            )}
+
+            <Button
+              onClick={handleLoadSample}
+              variant="primary"
+              size="sm"
+              className="font-bold shadow-md shadow-[var(--primary)]/20"
+            >
+              Try Birthday Demo (₹5L)
+            </Button>
+          </div>
+        </header>
+
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)] to-[var(--surface)] border border-[var(--border)] p-8 sm:p-14 shadow-2xl">
+          <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-[var(--primary)]/20 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-[var(--accent)]/15 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--accent)]/30 text-xs font-semibold text-[var(--accent)] shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-secondary)] border border-[var(--accent)]/35 text-xs font-semibold text-[var(--accent)] shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse" />
               समुल्लासः • Celebration with Mathematical Clarity & Grace
             </div>
 
-            <div className="space-y-3">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--foreground)] tracking-tight leading-tight">
-                Plan the Celebration.{' '}
+            <div className="space-y-4">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[var(--foreground)] tracking-tight leading-tight">
+                Plan Celebrations with{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--accent-hover)]">
-                  Master Every Trade-off.
+                  Grace & Precision.
                 </span>
               </h1>
-              <p className="text-base sm:text-lg text-[var(--muted)] leading-relaxed">
-                Adaptive celebration intelligence for milestone birthdays, weddings, and community festivals. Experience deterministic integer-paise calculations, date-aware milestone dependency graphs, and instant constraint recovery.
+              <p className="text-base sm:text-xl text-[var(--muted)] leading-relaxed">
+                The next-generation celebration intelligence platform for milestone birthdays, weddings, and community festivals. Experience deterministic integer-paise financial calculations, date-aware milestone dependency graphs, and instant constraint recovery.
               </p>
             </div>
 
             {/* Direct Action Row */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-4 pt-4">
               <Button
                 onClick={handleLoadSample}
                 variant="primary"
                 size="lg"
-                className="shadow-lg shadow-[var(--primary)]/30 px-7 py-3.5 font-bold text-base"
+                className="shadow-xl shadow-[var(--primary)]/30 px-8 py-4 font-bold text-base"
               >
                 Load Sample Birthday (₹5L / 200 Guests)
               </Button>
@@ -90,14 +128,14 @@ export default function DashboardPage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="px-6 py-3.5 font-semibold text-base bg-[var(--surface)] hover:bg-[var(--surface-secondary)] border-[var(--border)]"
+                  className="px-7 py-4 font-semibold text-base bg-[var(--surface)] hover:bg-[var(--surface-secondary)] border-[var(--border)]"
                 >
                   + Create Custom Celebration
                 </Button>
               </Link>
 
               <Link href="/scenarios">
-                <Button variant="ghost" size="lg" className="text-sm font-semibold text-[var(--accent)]">
+                <Button variant="ghost" size="lg" className="text-sm font-semibold text-[var(--accent)] hover:underline">
                   Explore Adaptive Simulator →
                 </Button>
               </Link>
@@ -105,105 +143,187 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Single Signature Demo Showcase Card */}
+        {/* Live Product Preview Card */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-[var(--foreground)]">Official Demonstration Blueprint</h2>
-              <p className="text-xs sm:text-sm text-[var(--muted)]">Complete end-to-end birthday celebration plan with budgets, date-aware tasks, vendor contracts, and constraints</p>
-            </div>
-            <Badge variant="accent">BIRTHDAY DEMO</Badge>
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">Interactive Studio Preview</h2>
+            <p className="text-sm text-[var(--muted)]">Real-time visibility into budgets, constraints, and preparation deadlines</p>
           </div>
 
-          <div className="celebration-card p-6 sm:p-8 border-l-4 border-l-[var(--accent)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-secondary)]/50 to-[var(--surface)] space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[var(--accent-light)] border border-[var(--accent)]/30 flex items-center justify-center text-2xl shadow-inner">
-                  🎂
+          <div className="celebration-card p-6 sm:p-8 bg-[var(--surface)] border border-[var(--border)] shadow-xl space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="accent">MILESTONE BIRTHDAY</Badge>
+                  <span className="text-xs text-[var(--muted)]">Scenario v1 • Approved</span>
+                  <Badge variant="success">✓ Pre-validated Plan</Badge>
                 </div>
-                <div>
-                  <h3 className="text-xl font-extrabold text-[var(--foreground)]">Ananya&apos;s Grand Birthday Celebration</h3>
-                  <p className="text-xs text-[var(--muted)]">Milestone 30th Birthday • Chennai, Tamil Nadu • Contemporary & Heritage Fusion</p>
-                </div>
+                <h3 className="text-xl font-bold text-[var(--foreground)]">Ananya&apos;s Grand Birthday Celebration</h3>
+                <p className="text-xs text-[var(--muted)]">📍 Chennai, Tamil Nadu • 200 Guests • ₹5,00,000 Budget Ceiling</p>
               </div>
-              <Badge variant="success">✓ Pre-validated Constraints</Badge>
-            </div>
 
-            <p className="text-sm text-[var(--muted)] leading-relaxed">
-              Fully configured milestone birthday celebration featuring banquet hall & terrace lawn rental, authentic celebratory dinner feast (₹1,200/guest), professional photography with instant photobooth, theme floral and balloon installations, live entertainment band, and wheelchair-accessible facilities.
-            </p>
-
-            {/* 4 Feature Pillars of Demo */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs">
-              <div>
-                <span className="text-[var(--muted)] block font-medium">Budget Ceiling</span>
-                <strong className="text-base font-extrabold text-[var(--primary)]">₹5,00,000.00</strong>
-              </div>
-              <div>
-                <span className="text-[var(--muted)] block font-medium">Guest Capacity</span>
-                <strong className="text-base font-extrabold text-[var(--foreground)]">200 / 300 Max</strong>
-              </div>
-              <div>
-                <span className="text-[var(--muted)] block font-medium">Timeline Horizon</span>
-                <strong className="text-base font-extrabold text-[var(--accent)]">3 Months (10 Tasks)</strong>
-              </div>
-              <div>
-                <span className="text-[var(--muted)] block font-medium">Shortlisted Vendors</span>
-                <strong className="text-base font-extrabold text-[var(--foreground)]">3 Quoted</strong>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Button
-                onClick={handleLoadSample}
-                variant="primary"
-                size="md"
-                className="font-bold shadow-md shadow-[var(--primary)]/20"
-              >
-                Launch Signature Birthday Demo
+              <Button onClick={handleLoadSample} variant="primary" size="sm" className="font-bold">
+                Launch Live Demo →
               </Button>
-              <span className="text-xs text-[var(--muted)]">Loads all budget line items, tasks, and vendor quotations into your local workspace.</span>
+            </div>
+
+            {/* Visual Budget Stacked Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-semibold">
+                <span className="text-[var(--foreground)]">Celebration Budget Allocation (₹5,00,000)</span>
+                <span className="text-[var(--success)]">100% Allocated • ₹0 Drift</span>
+              </div>
+              <div className="w-full h-3.5 bg-[var(--surface-secondary)] rounded-full overflow-hidden flex shadow-inner">
+                <div className="h-full bg-amber-500" style={{ width: '48%' }} title="Catering: ₹2,40,000 (48%)" />
+                <div className="h-full bg-purple-500" style={{ width: '16%' }} title="Venue: ₹80,000 (16%)" />
+                <div className="h-full bg-rose-500" style={{ width: '12%' }} title="Decor: ₹60,000 (12%)" />
+                <div className="h-full bg-emerald-500" style={{ width: '9%' }} title="Photo: ₹45,000 (9%)" />
+                <div className="h-full bg-indigo-500" style={{ width: '6%' }} title="Entertainment: ₹30,000 (6%)" />
+                <div className="h-full bg-slate-500" style={{ width: '6%' }} title="Contingency: ₹30,000 (6%)" />
+                <div className="h-full bg-orange-500" style={{ width: '3%' }} title="Invitations: ₹15,000 (3%)" />
+              </div>
+              <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
+                <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 font-medium">Catering ₹2.40L (48%)</span>
+                <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-400 font-medium">Venue ₹80K (16%)</span>
+                <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-medium">Decor ₹60K (12%)</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium">Photo ₹45K (9%)</span>
+                <span className="px-2 py-0.5 rounded bg-slate-500/15 text-slate-400 font-medium">Contingency ₹30K (6%)</span>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Architectural Pillars */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[var(--border)]">
-          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
-            <span className="text-2xl mt-0.5" role="img" aria-label="Security">🛡️</span>
-            <div>
-              <h4 className="text-sm font-bold text-[var(--foreground)]">Zero-Error Integer Math</h4>
-              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
-                All monetary computations execute strictly in integer paise (1/100 INR) with strict variance tracking, eliminating float rounding drift.
-              </p>
-            </div>
+        {/* Three Core Celebration Archetypes */}
+        <section className="space-y-6">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">Celebration Archetypes</h2>
+            <p className="text-sm text-[var(--muted)]">Custom workflows, task templates, and budget line items for every occasion</p>
           </div>
 
-          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
-            <span className="text-2xl mt-0.5" role="img" aria-label="Engine">⚡</span>
-            <div>
-              <h4 className="text-sm font-bold text-[var(--foreground)]">Adaptive Constraint Graph</h4>
-              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
-                Guest count surges dynamically recalculate per-person costs, venue capacities, and vendor requirements with instant recovery options.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="celebration-card p-6 space-y-3 border-t-4 border-t-[var(--accent)]">
+              <span className="text-3xl" role="img" aria-label="Birthday">🎂</span>
+              <h3 className="text-lg font-bold text-[var(--foreground)]">Milestone Birthdays</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Carnival themes, custom artisan cakes, live entertainment bands, photobooths, and personalized favors for 1st to 50th jubilees.
               </p>
             </div>
-          </div>
 
-          <div className="flex items-start gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-xs">
-            <span className="text-2xl mt-0.5" role="img" aria-label="Timeline">📅</span>
-            <div>
-              <h4 className="text-sm font-bold text-[var(--foreground)]">Date-Aware Milestones</h4>
-              <p className="text-xs text-[var(--muted)] mt-1.5 leading-relaxed">
-                Graph-linked task deadlines synchronize tastings, invitations, and vendor payments backwards from celebration day.
+            <div className="celebration-card p-6 space-y-3 border-t-4 border-t-[var(--primary)]">
+              <span className="text-3xl" role="img" aria-label="Wedding">💍</span>
+              <h3 className="text-lg font-bold text-[var(--foreground)]">Weddings & Sangeet</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Traditional mandapam logistics, multi-day coordination, catering feasts, guest lists, and wheelchair accessibility compliance.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-3 border-t-4 border-t-[var(--success)]">
+              <span className="text-3xl" role="img" aria-label="Festival">🪔</span>
+              <h3 className="text-lg font-bold text-[var(--foreground)]">Community Festivals</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Open amphitheater events, food stall budgeting, municipal security permits, cultural troupes, and crowd flow management.
               </p>
             </div>
           </div>
         </section>
+
+        {/* Five Architectural Pillars */}
+        <section className="space-y-6">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">The Architectural Core</h2>
+            <p className="text-sm text-[var(--muted)]">Why Samullāsa is fundamentally different from generic checklists and chatbots</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="Math">🛡️</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Zero-Float Integer Paise</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                All monetary computations execute in integer paise (1/100 INR) with strict variance tracking, eliminating float rounding drift across quotes.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="Graph">⚡</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Adaptive Constraint Graph</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Guest count surges automatically propagate across catering, venues, and task deadlines without manual recalculations.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="Timeline">📅</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Date-Aware Reverse Gantt</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Task deadlines synchronize backwards from celebration day to ensure tasting sessions and vendor confirmations are completed on schedule.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="Vendors">🤝</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Vendor Contract Ledger</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Track itemized quotations, inclusions, exclusions, and payment deposit tranches across catering, photography, and decor in one view.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="AI">🤖</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Google Gemini AI Engine</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Natural-language request interpretation and personalized celebration recommendations with deterministic output schema validation.
+              </p>
+            </div>
+
+            <div className="celebration-card p-6 space-y-2">
+              <span className="text-2xl" role="img" aria-label="Privacy">🔒</span>
+              <h3 className="text-base font-bold text-[var(--foreground)]">Local Persistence & Privacy</h3>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                Celebration data is stored safely in client-side storage with immutable version history and instant deterministic rollback.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Demo Launch Banner */}
+        <section className="celebration-card p-8 text-center space-y-4 bg-gradient-to-r from-[var(--surface-secondary)] via-[var(--surface)] to-[var(--surface-secondary)] border-2 border-[var(--primary)]/40">
+          <h2 className="text-2xl font-black text-[var(--foreground)]">Ready to Experience Samullāsa?</h2>
+          <p className="text-sm text-[var(--muted)] max-w-xl mx-auto">
+            Launch the pre-configured milestone birthday celebration with ₹5,00,000 budget, 200 guests, 10 milestones, and 3 vendor quotations.
+          </p>
+          <div className="pt-2 flex flex-wrap justify-center gap-4">
+            <Button
+              onClick={handleLoadSample}
+              variant="primary"
+              size="lg"
+              className="font-bold shadow-lg shadow-[var(--primary)]/30 px-8"
+            >
+              Launch Signature Birthday Demo
+            </Button>
+            <Link href="/events/new">
+              <Button variant="outline" size="lg">
+                Create New Celebration
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* Landing Footer */}
+        <footer className="pt-8 border-t border-[var(--border)] text-xs text-[var(--muted)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <SamullasaLogo size={24} showText={false} />
+            <span className="font-semibold text-[var(--foreground)]">SAMULLĀSA Celebration Studio</span>
+            <span>• Deterministic Event Intelligence</span>
+          </div>
+          <p>© 2026 Samullāsa. Built with integer-paise math and adaptive constraint graphs.</p>
+        </footer>
       </div>
     );
   }
 
-  // Dark-mode optimized jewel-tone color tokens for budget distribution
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 2. ACTIVE CELEBRATION WORKSPACE (When events exist and viewMode === 'workspace')
+  // ═══════════════════════════════════════════════════════════════════════════
   const categoryColors: Record<string, { bg: string; text: string; bar: string }> = {
     catering: { bg: 'bg-amber-500/15', text: 'text-amber-400', bar: 'bg-amber-500' },
     venue: { bg: 'bg-purple-500/15', text: 'text-purple-400', bar: 'bg-purple-500' },
@@ -231,7 +351,7 @@ export default function DashboardPage() {
 
   // Sandbox calculations for 200 vs 280 guests
   const perPersonItem = activeScenario?.budgetItems.find((i) => i.costType === 'per_person');
-  const unitRate = perPersonItem?.unitRatePaise || 120000; // default ₹1,200
+  const unitRate = perPersonItem?.unitRatePaise || 120000;
   const simCateringCost = simGuests * unitRate;
   const currentCateringCost = (activeScenario?.guestCount || 200) * unitRate;
   const simProjectedTotal = (budgetSummary?.projectedTotalPaise || 50000000) - currentCateringCost + simCateringCost;
@@ -239,7 +359,6 @@ export default function DashboardPage() {
   const simVariance = simProjectedTotal - simCeiling;
   const simIsOver = simVariance > 0;
 
-  // Active Event Dashboard
   return (
     <div className="space-y-6">
       {/* Top Banner / Event Selector */}
@@ -254,6 +373,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setViewMode('landing')}
+            className="text-xs text-[var(--accent)] font-semibold"
+          >
+            🌐 Landing Page
+          </Button>
+
           {state.events.length > 1 && (
             <select
               value={activeEvent?.id}
